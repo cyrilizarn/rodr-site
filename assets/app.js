@@ -385,7 +385,7 @@
       p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
       // irregular outer edge: slow angular modulation + per-grain randomness, so the halo is never a perfect circle
       const lobe = 1 + 0.32 * Math.sin(3 * a + tt * 0.4) + 0.18 * Math.sin(7 * a - tt * 0.9) + 0.1 * Math.sin(13 * a + tt * 1.7);
-      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : Math.min(R0 * (1.075 + Math.pow(Math.random(), 1.5) * 0.575 * lobe * (0.6 + Math.random() * 0.8)), Math.min(W, H) * 0.47);
+      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : Math.min(R0 * (1.04 + Math.pow(Math.random(), 1.5) * 0.29 * lobe * (0.6 + Math.random() * 0.8)), Math.min(W, H) * 0.47);
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
       if (fresh) { const k = Math.random(); const rr = R0 + (p.max - R0) * k; p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
       return p;
