@@ -67,11 +67,9 @@
 
     <main id="top">
       <section class="hero">
-        <div class="hero-bg" style="background-image:url('${esc(site.hero_image)}')"></div>
-        <div class="hero-tint"></div>
         <canvas aria-hidden="true"></canvas>
         <div class="hero-top"><span class="mono">Electronica · IDM · Live A/V</span><span class="mono grey">${esc(L(site, "tagline"))}</span></div>
-        <div class="hero-clip"><h1 class="hero-title cond">${split("ROD-R")}</h1></div>
+        <h1 class="hero-title cond">${split("ROD-R")}</h1>
         <div class="ticker"><div>${tick}${tick}</div></div>
       </section>
 
@@ -183,7 +181,7 @@
     if (!reduce) addEventListener("scroll", () => { const r = band.parentElement.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) band.style.transform = `translateY(${(r.top / innerHeight) * -60}px)`; }, { passive: true });
 
     // fit giant titles to the viewport width
-    const fit = () => document.querySelectorAll(".hero-title, .foot-logo").forEach(el => {
+    const fit = () => document.querySelectorAll(".foot-logo").forEach(el => {
       const host = el.classList.contains("hero-title") ? el : el.parentElement;
       const cs = getComputedStyle(host), pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
       const avail = (el.classList.contains("hero-title") ? innerWidth : host.clientWidth) - pad;
@@ -194,71 +192,64 @@
     });
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
-    // hero: the photo's white grain halo rebuilt as particles that react to the pointer
-    const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d", { alpha: true });
-    let W = 0, H = 0, DPR = 1, P = [], mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false }, visible = true, pulse = null;
-    const img = new Image();
-    const build = () => {
-      DPR = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight;
-      cv.width = W * DPR; cv.height = H * DPR; cx.setTransform(DPR, 0, 0, DPR, 0, 0);
-      if (!img.complete || !img.naturalWidth) return;
-      // map image like background-size: cover; background-position: center 40%
-      const s = Math.max(W / img.naturalWidth, H / img.naturalHeight), iw = img.naturalWidth * s, ih = img.naturalHeight * s;
-      const ox = (W - iw) / 2, oy = (H - ih) * 0.4;
-      const step = W < 700 ? 4 : 3, gw = Math.ceil(W / step), gh = Math.ceil(H / step);
-      const off = document.createElement("canvas"); off.width = gw; off.height = gh;
-      const oc = off.getContext("2d"); oc.drawImage(img, ox / step, oy / step, iw / step, ih / step);
-      let data; try { data = oc.getImageData(0, 0, gw, gh).data; } catch (e) { return; }
-      const max = W < 700 ? 5000 : 14000; P = [];
-      for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
-        const i = (y * gw + x) * 4, lum = (0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2]) / 255;
-        if (Math.random() < Math.pow(lum, 2.2) * 1.05) {
-          const hx = x * step + Math.random() * step, hy = y * step + Math.random() * step;
-          P.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, a: 0.35 + lum * 0.65, s: Math.random() < 0.85 ? 1 : 1.6, r: Math.random() < 0.035, k: 0.02 + Math.random() * 0.03 });
-        }
-      }
-      if (P.length > max) { P.sort(() => Math.random() - 0.5); P.length = max; }
-      // start scattered, then gather (intro)
-      P.forEach(p => { const a = Math.random() * Math.PI * 2, d = Math.max(W, H) * (0.3 + Math.random() * 0.7); p.x = W / 2 + Math.cos(a) * d; p.y = H * 0.45 + Math.sin(a) * d; });
+    // hero: a black hole at the centre emitting grain, disturbed by the pointer
+    const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
+    const title = hero.querySelector(".hero-title");
+    let W = 0, H = 0, CX = 0, CY = 0, R0 = 100, P = [], visible = true, tt = 0, surge = 0, nextSurge = 4;
+    const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
+    const N = () => (innerWidth < 700 ? 4200 : 10000);
+    const spawn = (p, fresh) => {
+      const a = Math.random() * Math.PI * 2, r = R0 * (1 + Math.random() * 0.04);
+      p.x = CX + Math.cos(a) * r; p.y = CY + Math.sin(a) * r;
+      const out = 0.25 + Math.random() * 0.9;          // radial push
+      p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
+      p.max = R0 * (1.25 + Math.pow(Math.random(), 2.2) * 3.2); // most die close to the rim -> dense halo
+      p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
+      if (fresh) { const k = Math.random(); const rr = R0 + (p.max - R0) * k; p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
+      return p;
     };
-    img.onload = build; addEventListener("resize", () => { clearTimeout(build.t); build.t = setTimeout(build, 200); });
-    const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; mouse.x = x; mouse.y = y; mouse.on = true; };
+    const size = () => {
+      const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+      CX = W / 2; CY = H / 2; R0 = Math.min(W, H) * (W < 700 ? 0.2 : 0.17);
+      title.style.fontSize = Math.round(R0 * 0.42) + "px";
+      P = Array.from({ length: N() }, () => spawn({}, true));
+    };
+    size(); addEventListener("resize", () => { clearTimeout(size.t); size.t = setTimeout(size, 200); });
+    const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
     hero.addEventListener("pointermove", setMouse);
-    hero.addEventListener("pointerdown", e => { setMouse(e); pulse = { x: mouse.x, y: mouse.y, t: 0 }; });
+    hero.addEventListener("pointerdown", e => { setMouse(e); surge = 1; });
     hero.addEventListener("pointerleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
     new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
-    let tt = 0;
     const frame = () => {
-      if (visible && P.length) {
-        cx.clearRect(0, 0, W, H);
-        const R = Math.min(W, H) * (W < 700 ? 0.32 : 0.24), R2 = R * R, speed = Math.min(Math.hypot(mouse.vx, mouse.vy), 60);
-        if (pulse) pulse.t += 18;
-        tt += 0.01;
+      if (visible) {
+        tt += 1 / 60; if (tt > nextSurge) { surge = 0.7; nextSurge = tt + 4 + Math.random() * 5; }  // spontaneous energy pulses
+        surge *= 0.965;
+        cx.fillStyle = "rgba(10,10,10,0.42)"; cx.fillRect(0, 0, W, H);   // short trails
+        const MR = Math.min(W, H) * 0.22, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 50);
+        const breath = 1 + Math.sin(tt * 1.3) * 0.25;
         for (const p of P) {
-          // spring home + slow breathing
-          const bx = p.hx + Math.sin(tt + p.hy * 0.02) * 1.2, by = p.hy + Math.cos(tt * 0.8 + p.hx * 0.02) * 1.2;
-          p.vx += (bx - p.x) * p.k; p.vy += (by - p.y) * p.k;
+          const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+          // flow: outward energy + swirl that weakens with distance
+          const push = (0.035 + surge * 0.5) * breath * (R0 / d), swirl = 0.05 * p.spin * (R0 / d);
+          p.vx += ux * push - uy * swirl; p.vy += uy * push + ux * swirl;
           if (mouse.on) {
-            const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
-            if (d2 < R2) {
-              const d = Math.sqrt(d2) || 1, f = (1 - d / R); const f2 = f * f * (3 + speed * 0.1);
-              p.vx += (dx / d) * f2 - (dy / d) * f2 * 0.9; // push out + swirl (black-hole lensing)
-              p.vy += (dy / d) * f2 + (dx / d) * f2 * 0.9;
-            }
+            const mx = p.x - mouse.x, my = p.y - mouse.y, m2 = mx * mx + my * my;
+            if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (1.6 + ms * 0.09); p.vx += mx / m * f2 + my / m * f2 * 0.8; p.vy += my / m * f2 - mx / m * f2 * 0.8; }
           }
-          if (pulse) { const dx = p.x - pulse.x, dy = p.y - pulse.y, d = Math.hypot(dx, dy) || 1, band = Math.abs(d - pulse.t); if (band < 40) { const f = (1 - band / 40) * 6; p.vx += dx / d * f; p.vy += dy / d * f; } }
-          p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
-          const v = Math.min(Math.hypot(p.vx, p.vy) / 8, 1);
-          cx.fillStyle = p.r || v > 0.55 ? `rgba(225,37,27,${0.55 + v * 0.45})` : `rgba(239,238,233,${p.a})`;
+          p.vx *= 0.94; p.vy *= 0.94; p.x += p.vx; p.y += p.vy;
+          const nd = Math.hypot(p.x - CX, p.y - CY);
+          if (nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
+          const life = 1 - (nd - R0) / (p.max - R0);
+          const v = Math.min(Math.hypot(p.vx, p.vy) / 6, 1);
+          cx.fillStyle = p.red || v > 0.6 ? `rgba(225,37,27,${0.5 + life * 0.5})` : `rgba(239,238,233,${0.15 + life * 0.85})`;
           cx.fillRect(p.x, p.y, p.s, p.s);
         }
-        if (pulse && pulse.t > Math.max(W, H)) pulse = null;
-        mouse.vx *= 0.8; mouse.vy *= 0.8;
+        cx.fillStyle = "#0a0a0a"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill();   // the black hole
+        mouse.vx *= 0.85; mouse.vy *= 0.85;
       }
       requestAnimationFrame(frame);
     };
-    if (reduce) { img.onload = () => { build(); P.forEach(p => { p.x = p.hx; p.y = p.hy; }); cx.clearRect(0, 0, W, H); P.forEach(p => { cx.fillStyle = `rgba(239,238,233,${p.a})`; cx.fillRect(p.x, p.y, p.s, p.s); }); }; }
+    if (reduce) { cx.fillStyle = "#0a0a0a"; cx.fillRect(0, 0, W, H); P.forEach(p => { cx.fillStyle = `rgba(239,238,233,.6)`; cx.fillRect(p.x, p.y, p.s, p.s); }); cx.beginPath(); cx.arc(CX, CY, R0, 0, Math.PI * 2); cx.fill(); }
     else frame();
-    img.src = site.hero_image;
   })();
 })();
