@@ -388,7 +388,7 @@
       const lobe = 1 + 0.32 * Math.sin(3 * a + tt * 0.4) + 0.18 * Math.sin(7 * a - tt * 0.9) + 0.1 * Math.sin(13 * a + tt * 1.7);
       // lifetime in frames (random), so grains fade out at scattered distances instead of on a circle
       p.age = 0; p.ttl = p.rim ? 14 + Math.random() * 46 : 3 + Math.pow(Math.random(), 1.4) * 34 * lobe * (0.35 + Math.random() * 1.3);
-      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.25) : Math.min(W, H) * 0.49;
+      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.25) : Infinity;   // no outer distance cap: grains fade by lifetime only
       p.drag = p.rim ? 0.94 : 0.86 + Math.random() * 0.1;   // varied friction -> grains stop at different distances
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
       if (fresh) { p.age = Math.random() * p.ttl; const rr = R0 * (1 + Math.random() * 0.12); p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
