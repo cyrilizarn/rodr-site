@@ -69,7 +69,7 @@ body #live, body #gallery { padding-right: 0; }
 }
 
 /* HERO */
-.hero { position: relative; height: 100svh; min-height: 600px; overflow: hidden; }
+.hero { position: sticky; top: 0; height: 100svh; min-height: 600px; overflow: hidden; z-index: 0; }
 .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center 40%; filter: grayscale(1) contrast(1.2) brightness(.32); }
 @keyframes slowzoom { to { transform: scale(1); } }
 .hero-tint { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, rgba(225,37,27,.18), transparent 60%); }
@@ -284,15 +284,19 @@ footer a:hover { color: var(--red); }
 .hero.portal .hero-sub { color: var(--white); }
 .portal-hint { position: absolute; z-index: 2; left: 50%; bottom: 60px; transform: translateX(-50%); font-size: 15px; font-weight: 700; animation: hint 2s ease-in-out infinite; pointer-events: none; }
 @keyframes hint { 50% { transform: translate(-50%, 6px); } }
-/* live reel under the black hole */
-.reel-sec { padding: clamp(40px, 6vw, 90px) 0 0; display: flex; flex-direction: column; align-items: center; }
-.reel { position: relative; width: 70vw; aspect-ratio: 16 / 9; background: #000; overflow: hidden; will-change: transform, opacity; transform-origin: 50% 0; }
+/* live reel: slides over the black hole, then stays centred */
+.intro { position: relative; }
+.hero .hero-title .glyph { display: inline-block; color: var(--red); transform: none; animation: none; min-width: .7em; text-align: center; }
+.hero .hero-sub { display: none; }
+.reel-sec { position: relative; z-index: 5; height: 170svh; }
+.reel-pin { position: sticky; top: calc(50svh - min(80vw * 9 / 16, 76svh) / 2 - 18px); display: flex; flex-direction: column; align-items: center; }
+.reel { position: relative; width: min(80vw, calc(76svh * 16 / 9)); aspect-ratio: 16 / 9; background: #000; overflow: hidden; will-change: transform, opacity; transform-origin: 50% 50%; box-shadow: 0 40px 120px rgba(0,0,0,.6); }
 .reel-in { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease; pointer-events: none; }
 .reel-in.on { opacity: 1; }
 .reel-in iframe { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%) scale(1.22); border: 0; }
 .reel-sound { position: absolute; right: 16px; bottom: 16px; z-index: 2; font-size: 14px; font-weight: 700; padding: 9px 16px; border-radius: 999px; background: rgba(10,10,10,.55); backdrop-filter: blur(6px); border: 1px solid var(--edge); }
 .reel-sound span { font-weight: 400; opacity: .7; }
 .reel-sound[aria-pressed="true"] { background: var(--red); border-color: var(--red); }
-.reel-cap { width: 70vw; margin-top: 16px; font-size: 15px; color: var(--grey); }
+.reel-cap { width: min(80vw, calc(76svh * 16 / 9)); margin-top: 14px; font-size: 15px; color: var(--grey); }
 .reel-cap b { color: var(--white); }
-@media (max-width: 700px) { .reel, .reel-cap { width: calc(100vw - 32px); } }
+@media (max-width: 700px) { .reel, .reel-cap { width: calc(100vw - 32px); } .reel-pin { top: 30svh; } }

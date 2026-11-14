@@ -68,17 +68,19 @@
     </header>
 
     <main id="top">
+      <div class="intro">
       <section class="hero">
         <canvas aria-hidden="true"></canvas>
         <p class="hero-sub">Electronica · IDM · Live A/V</p>
-        <h1 class="hero-title cond">${split("ROD-R")}</h1>
+        <h1 class="hero-title cond" aria-label="ROD-R"><span class="glyph">R</span></h1>
 
       </section>
       <section class="reel-sec" aria-label="Live">
-        <div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div>
+        <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div>
           <button class="reel-sound" aria-pressed="false">${LANG === "fr" ? "Son" : "Sound"} <span>off</span></button></div>
-        <p class="reel-cap"><b>${esc((videos[0] || {}).title || "Live A/V — La Boule Noire, Paris")}</b></p>
+        <p class="reel-cap"><b>${esc((videos[0] || {}).title || "Live A/V — La Boule Noire, Paris")}</b></p></div>
       </section>
+      </div>
 
       <section class="sec" id="about">${head("about")}
         <div class="bio">
@@ -394,10 +396,13 @@
     const size = () => {
       const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
       CX = W / 2; CY = H / 2; R0 = R0base = Math.min(W, H) * (W < 700 ? 0.2 : 0.17);
-      title.style.fontSize = Math.round(R0base * 0.42) + "px";
+      title.style.fontSize = Math.round(R0base * 0.95) + "px";
       P = Array.from({ length: N() }, () => spawn({}, true));
     };
     size(); addEventListener("resize", () => { clearTimeout(size.t); size.t = setTimeout(size, 200); });
+    // red glyphs flickering very fast at the centre of the hole
+    const GL = "ROD-R0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@*+=/<>?!", gEl = title.querySelector(".glyph");
+    if (gEl && !reduce) setInterval(() => { gEl.textContent = GL[(Math.random() * GL.length) | 0]; }, 45);
     const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
     hero.addEventListener("pointermove", setMouse);
     hero.addEventListener("pointerdown", e => { setMouse(e); surge = 1; });
