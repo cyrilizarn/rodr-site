@@ -74,7 +74,11 @@
         <h1 class="hero-title cond">${split("ROD-R")}</h1>
 
       </section>
-      <div class="ticker"><div>${tick}${tick}</div></div>
+      <section class="reel-sec" aria-label="Live">
+        <div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div>
+          <button class="reel-sound" aria-pressed="false">${LANG === "fr" ? "Son" : "Sound"} <span>off</span></button></div>
+        <p class="reel-cap"><b>${esc((videos[0] || {}).title || "Live A/V — La Boule Noire, Paris")}</b></p>
+      </section>
 
       <section class="sec" id="about">${head("about")}
         <div class="bio">
@@ -193,6 +197,19 @@
       };
       tick();
     }
+
+    // live reel: rises from below on scroll, autoplays muted, sound toggle
+    const reelSec = document.querySelector(".reel-sec"), reel = reelSec.querySelector(".reel"), reelIn = reelSec.querySelector(".reel-in");
+    let reelFrame = null;
+    new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); const id = reelIn.dataset.yt;
+      reelIn.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&enablejsapi=1&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
+      reelFrame = reelIn.querySelector("iframe"); setTimeout(() => reelIn.classList.add("on"), 2600); } }, { rootMargin: "400px" }).observe(reelSec);
+    const snd = reelSec.querySelector(".reel-sound");
+    snd.onclick = () => { if (!reelFrame) return; const on = snd.getAttribute("aria-pressed") !== "true"; snd.setAttribute("aria-pressed", on); snd.querySelector("span").textContent = on ? "on" : "off";
+      reelFrame.contentWindow.postMessage(JSON.stringify({ event: "command", func: on ? "unMute" : "mute", args: [] }), "*"); };
+    const reelScroll = () => { const r = reelSec.getBoundingClientRect(); const k = Math.min(Math.max((innerHeight - r.top) / (innerHeight * 0.95), 0), 1); const e = 1 - Math.pow(1 - k, 3);
+      reel.style.transform = `translateY(${(1 - e) * 160}px) scale(${0.86 + 0.14 * e})`; reel.style.opacity = 0.2 + 0.8 * e; };
+    addEventListener("scroll", reelScroll, { passive: true }); reelScroll();
 
     // releases accordion + cursor cover preview
     const pv = document.querySelector(".preview");
@@ -398,7 +415,7 @@
           title.style.opacity = sub.style.opacity = Math.max(0, 1 - e * 2.5);
           hero.querySelector(".portal-hint").style.opacity = Math.max(0, 1 - e * 4);
         }
-        cx.fillStyle = "rgba(10,10,10,0.42)"; cx.fillRect(0, 0, W, H);   // short trails
+        cx.save(); cx.globalCompositeOperation = "destination-out"; cx.fillStyle = "rgba(0,0,0,0.42)"; cx.fillRect(0, 0, W, H); cx.restore();   // short trails, fading to transparent
         const MR = Math.min(W, H) * 0.22, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 50);
         const breath = 1 + Math.sin(tt * 1.3) * 0.25;
         for (const p of P) {
