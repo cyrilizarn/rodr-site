@@ -392,7 +392,7 @@
     };
     const size = () => {
       const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
-      CX = W / 2; CY = H / 2; R0 = R0base = Math.min(W, H) * (W < 700 ? 0.2 : 0.17);
+      CX = W / 2; CY = H / 2; R0 = R0base = Math.min(W, H) * (W < 700 ? 0.4 : 0.34);
       title.style.fontSize = Math.round(R0base * 0.95) + "px";
       P = Array.from({ length: N() }, () => spawn({}, true));
     };
