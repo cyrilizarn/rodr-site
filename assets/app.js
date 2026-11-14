@@ -235,7 +235,17 @@
     });
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
-    if (qs.get("hero") === "photo") {
+    if (qs.get("hero") === "video") {
+      // TEST: live video (La Boule Noire) as a fullscreen background
+      const hero = document.querySelector(".hero"); hero.classList.add("video-mode");
+      const id = ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY";
+      const wrap = document.createElement("div"); wrap.className = "hero-video";
+      wrap.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
+      hero.prepend(wrap);
+      const sound = document.createElement("button"); sound.className = "hero-sound"; sound.textContent = LANG === "fr" ? "Voir le live complet ↗" : "Watch the full live ↗";
+      sound.onclick = () => document.querySelector("#videos").scrollIntoView();
+      hero.appendChild(sound);
+    } else if (qs.get("hero") === "photo") {
       // TEST: live photo rebuilt from interactive grain
       const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
       hero.classList.add("photo-mode");
