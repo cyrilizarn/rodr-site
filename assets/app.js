@@ -1,192 +1,222 @@
-/* ROD-R — site statique. Le contenu vient de /content/*.json (édité via Pages CMS). */
+/* ROD-R — one-page. Contenu : /content/*.json (édité via Pages CMS). */
 (() => {
-  const PAGE = document.body.dataset.page || "home";
-  const params = new URLSearchParams(location.search);
-  let LANG = params.get("lang") || safeGet("lang") || ((navigator.language || "fr").startsWith("fr") ? "fr" : "en");
+  const qs = new URLSearchParams(location.search);
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  let LANG = qs.get("lang") || get("lang") || ((navigator.language || "fr").startsWith("fr") ? "fr" : "en");
   if (!["fr", "en"].includes(LANG)) LANG = "fr";
   document.documentElement.lang = LANG;
 
-  function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-  function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-
   const UI = {
-    fr: {
-      music: "Musique", live: "Live", bio: "Bio", gallery: "Galerie", news: "News", contact: "Contact", store: "Store",
-      menu: "Menu", close: "Fermer", latest: "Dernière sortie", listen: "Écouter", upcoming: "Prochaines dates",
-      allDates: "Toutes les dates", allMusic: "Toute la discographie", allNews: "Toutes les news", videos: "Vidéos",
-      discography: "Discographie", info: "Info", tracklist: "Tracklist", noDates: "Nouvelles dates bientôt.",
-      tickets: "Billets", past: "Dates passées", liveTitle: "Le live", epk: "Presskit / EPK", press: "Presse",
-      stayTuned: "Reste dans la boucle.", nlText: "Sorties, dates, coulisses. Pas de spam.", email: "Ton e-mail",
-      subscribe: "S'inscrire", nlSoon: "Newsletter bientôt — écris-nous", follow: "Suivre", links: "Liens",
-      rights: "Tous droits réservés", booking: "Booking · Presse · Contact", readMore: "Lire", watch: "Voir",
-      liveText: "45 minutes en sept actes, jouées sur machines analogiques et projetées sur tulle. Musique, typographie et visuels génératifs pensés comme un seul geste.",
-      heroLabel: "Electronica · IDM · Live A/V", single: "Single"
-    },
-    en: {
-      music: "Music", live: "Live", bio: "Bio", gallery: "Gallery", news: "News", contact: "Contact", store: "Store",
-      menu: "Menu", close: "Close", latest: "Latest release", listen: "Listen", upcoming: "Upcoming shows",
-      allDates: "All dates", allMusic: "Full discography", allNews: "All news", videos: "Videos",
-      discography: "Discography", info: "Info", tracklist: "Tracklist", noDates: "New dates coming soon.",
-      tickets: "Tickets", past: "Past shows", liveTitle: "The live show", epk: "Press kit / EPK", press: "Press",
-      stayTuned: "Stay in the loop.", nlText: "Releases, shows, behind the scenes. No spam.", email: "Your email",
-      subscribe: "Subscribe", nlSoon: "Newsletter coming soon — email us", follow: "Follow", links: "Links",
-      rights: "All rights reserved", booking: "Booking · Press · Contact", readMore: "Read", watch: "Watch",
-      liveText: "45 minutes in seven acts, played on analogue machines and projected onto tulle. Music, typography and generative visuals conceived as one gesture.",
-      heroLabel: "Electronica · IDM · Live A/V", single: "Single"
-    }
+    fr: { music: "Musique", dates: "Dates", live: "Live A/V", videos: "Vidéos", bio: "Bio", gallery: "Galerie", news: "News", contact: "Contact", store: "Store",
+      menu: "Menu", close: "Fermer", info: "Info", tracklist: "Tracklist", listen: "Écouter", tickets: "Billets", noDates: "Nouvelles dates bientôt.",
+      past: "Déjà joué", epk: "Presskit / EPK", press: "Presse", stay: "Reste dans la boucle.", nlText: "Sorties, dates, coulisses. Pas de spam.",
+      email: "Ton e-mail", subscribe: "S'inscrire →", soon: "Newsletter bientôt — écris-nous →", releases: "sorties", upcoming: "à venir",
+      liveText: "Un live en sept actes, joué sur machines analogiques et projeté sur tulle. Musique, typographie et visuels génératifs pensés comme un seul geste.",
+      techsheet: "Fiche technique", minutes: "minutes", acts: "actes", screen: "tulle", play: "Lecture", drag: "Glisser →", rights: "Tous droits réservés",
+      booking: "Booking · presse · contact", latest: "Nouveau" },
+    en: { music: "Music", dates: "Dates", live: "Live A/V", videos: "Videos", bio: "Bio", gallery: "Gallery", news: "News", contact: "Contact", store: "Store",
+      menu: "Menu", close: "Close", info: "Info", tracklist: "Tracklist", listen: "Listen", tickets: "Tickets", noDates: "New dates coming soon.",
+      past: "Played", epk: "Press kit / EPK", press: "Press", stay: "Stay in the loop.", nlText: "Releases, shows, behind the scenes. No spam.",
+      email: "Your email", subscribe: "Subscribe →", soon: "Newsletter coming soon — email us →", releases: "releases", upcoming: "upcoming",
+      liveText: "A live show in seven acts, played on analogue machines and projected onto tulle. Music, typography and generative visuals conceived as one gesture.",
+      techsheet: "Tech rider", minutes: "minutes", acts: "acts", screen: "tulle", play: "Play", drag: "Drag →", rights: "All rights reserved",
+      booking: "Booking · press · contact", latest: "New" }
   };
   const t = k => UI[LANG][k] || k;
   const L = (o, k) => (o && (o[`${k}_${LANG}`] || o[`${k}_fr`] || o[k])) || "";
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const ext = u => /^https?:/.test(u || "") ? ' target="_blank" rel="noopener"' : "";
-  const fmtDate = (iso, opts = { day: "2-digit", month: "2-digit", year: "numeric" }) => {
-    const d = new Date(iso + "T12:00:00"); return isNaN(d) ? esc(iso) : d.toLocaleDateString(LANG === "fr" ? "fr-FR" : "en-GB", opts).replace(/\//g, ".");
-  };
-  const ytId = u => { const m = String(u || "").match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/); return m ? m[1] : ""; };
-  const paras = s => String(s || "").split(/\n\s*\n/).map(p => `<p>${esc(p.trim())}</p>`).join("");
+  const ytId = u => (String(u || "").match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/) || [])[1] || "";
+  const dd = iso => { const d = new Date(iso + "T12:00:00"); return isNaN(d) ? { a: esc(iso), b: "" } : { a: String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0"), b: d.getFullYear() }; };
+  const paras = s => String(s || "").split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+  const split = s => [...s].map(c => `<span>${c === " " ? "&nbsp;" : esc(c)}</span>`).join("");
+  const load = n => fetch(`/content/${n}.json`, { cache: "no-cache" }).then(r => r.json()).catch(() => ({}));
 
-  const cache = {};
-  const load = name => cache[name] || (cache[name] = fetch(`/content/${name}.json`, { cache: "no-cache" }).then(r => r.json()).catch(() => ({})));
-
-  /* ---------- Shell ---------- */
-  function shell(site) {
-    const store = site.bandcamp_url || site.linktree_url || "#";
-    const items = [["music", "/musique/"], ["live", "/live/"], ["bio", "/bio/"], ["gallery", "/galerie/"], ["news", "/news/"], ["contact", "/contact/"]];
-    const nav = document.createElement("header");
-    nav.className = "nav";
-    nav.innerHTML = `<div class="wrap nav-in">
-      <a class="logo" href="/">ROD<span>-</span>R</a>
-      <button class="burger" aria-expanded="false">${t("menu")}</button>
-      <nav class="menu">
-        ${items.map(([k, h]) => `<a href="${h}" class="${PAGE === k ? "active" : ""}">${t(k)}</a>`).join("")}
-        <a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a>
-        <button class="lang" title="Langue / Language">${LANG === "fr" ? "<b>FR</b> / EN" : "FR / <b>EN</b>"}</button>
-      </nav></div>`;
-    document.body.prepend(nav);
-    const burger = nav.querySelector(".burger"), menu = nav.querySelector(".menu");
-    burger.onclick = () => { const o = menu.classList.toggle("open"); burger.textContent = o ? t("close") : t("menu"); burger.setAttribute("aria-expanded", o); };
-    nav.querySelector(".lang").onclick = () => { safeSet("lang", LANG === "fr" ? "en" : "fr"); const u = new URL(location); u.searchParams.delete("lang"); location.href = u; };
-    const onScroll = () => nav.classList.toggle("scrolled", scrollY > 30 || PAGE !== "home");
-    addEventListener("scroll", onScroll, { passive: true }); onScroll();
-
-    const nlAction = site.newsletter_url;
-    const nl = document.createElement("section");
-    nl.className = "newsletter";
-    nl.innerHTML = `<div class="wrap">
-      <h2>${t("stayTuned")}</h2>
-      <div>
-        <p class="mono" style="margin-bottom:18px">${t("nlText")}</p>
-        ${nlAction
-          ? `<form class="nl-form" action="${esc(nlAction)}" method="post" target="_blank"><input type="email" name="EMAIL" required placeholder="${t("email")}"><button type="submit">${t("subscribe")} →</button></form>`
-          : `<a class="nl-form" href="mailto:${esc(site.email)}?subject=Newsletter%20ROD-R" style="padding:14px 0;font-size:20px;font-weight:500">${t("nlSoon")} →</a>`}
-      </div></div>`;
-    const footer = document.createElement("footer");
-    footer.innerHTML = `<div class="wrap">
-      <div class="foot">
-        <div><a class="logo" href="/">ROD<span>-</span>R</a></div>
-        <div><p class="label">${t("links")}</p><ul>${items.slice(0, 4).map(([k, h]) => `<li><a href="${h}">${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul></div>
-        <div><p class="label">${t("follow")}</p><ul>${(site.socials || []).map(s => `<li><a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)} ↗</a></li>`).join("")}</ul></div>
-        <div><p class="label">${t("contact")}</p><ul><li><a href="mailto:${esc(site.email)}">${esc(site.email)}</a></li><li><a href="/bio/#epk">${t("epk")}</a></li></ul></div>
-      </div>
-      <div class="legal label"><span>© ${new Date().getFullYear()} ROD-R — ${t("rights")}</span><span>Tarn, France</span></div></div>`;
-    document.body.append(nl, footer);
-  }
-
-  /* ---------- Blocks ---------- */
-  const coverHTML = r => r.cover
-    ? `<div class="cover"><img src="${esc(r.cover)}" alt="${esc(r.title)}" loading="lazy"></div>`
+  const SECTIONS = [["musique", "music"], ["dates", "dates"], ["live", "live"], ["videos", "videos"], ["bio", "bio"], ["galerie", "gallery"], ["news", "news"], ["contact", "contact"]];
+  const num = id => String(SECTIONS.findIndex(s => s[0] === id) + 1).padStart(2, "0");
+  const head = (id, aside = "") => `<div class="sec-head"><span class="num">${num(id)}</span><h2 class="cond"><span>${esc(t(SECTIONS.find(s => s[0] === id)[1]))}</span></h2><span class="aside mono grey">${aside}</span></div>`;
+  const cover = r => r.cover ? `<div class="cover"><img src="${esc(r.cover)}" alt="${esc(r.title)}" loading="lazy"></div>`
     : `<div class="cover ph"><span class="mono">ROD-R</span><strong>${esc(r.title)}</strong><span class="mono">${esc(r.type)} · ${esc(r.year)}</span></div>`;
-  const linksHTML = (links, cls = "btn") => (links || []).filter(l => l.url).map(l => `<a class="${cls}" href="${esc(l.url)}"${ext(l.url)}>${esc(l.name)} ↗</a>`).join("");
-  const videoHTML = v => { const id = ytId(v.youtube); return id ? `<div class="card rv"><div class="video" data-yt="${id}" style="background-image:url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)" role="button" aria-label="${esc(v.title)}"><span class="play"></span></div><p class="label">${esc(v.title)}</p></div>` : ""; };
-  const dateRow = d => `<div class="date rv"><span class="d">${fmtDate(d.date)}</span><span class="v">${esc(d.venue)}<small>${esc(d.city)}</small></span><span class="i">${esc(d.info)}</span>${d.ticket_url ? `<a class="btn" href="${esc(d.ticket_url)}"${ext(d.ticket_url)}>${t("tickets")} ↗</a>` : "<span></span>"}</div>`;
-  const newsCard = n => { const h = n.link || ""; const tag = h ? "a" : "div"; return `<${tag} class="card rv" ${h ? `href="${esc(h)}"${ext(h)}` : ""}>${n.image ? `<div class="img"><img src="${esc(n.image)}" alt="" loading="lazy"></div>` : ""}<p class="label red">${fmtDate(n.date)}</p><h3>${esc(L(n, "title"))}</h3><p class="muted">${esc(L(n, "text"))}</p></${tag}>`; };
-  const upcomingOf = dates => (dates.upcoming || []).filter(d => d.date >= new Date().toISOString().slice(0, 10)).sort((a, b) => a.date.localeCompare(b.date));
+  const btns = (links, cls = "btn") => (links || []).filter(l => l.url).map(l => `<a class="${cls}" href="${esc(l.url)}"${ext(l.url)}>${esc(l.name)} ↗</a>`).join("");
+  const video = v => { const id = ytId(v.youtube); return id ? `<div class="v"><div class="video" data-yt="${id}" style="background-image:url(https://i.ytimg.com/vi/${id}/hqdefault.jpg)" role="button" tabindex="0" aria-label="${esc(v.title)}"><span class="play">▶ ${t("play")}</span></div><div class="cap"><span class="mono">${esc(v.title)}</span></div></div>` : ""; };
 
-  /* ---------- Pages ---------- */
-  const pages = {
-    async home(main, site) {
-      const [rel, dates, vids, news] = await Promise.all([load("releases"), load("dates"), load("videos"), load("news")]);
-      const r = (rel.items || [])[0], up = upcomingOf(dates).slice(0, 3), v = (vids.items || [])[0];
-      const ns = (news.items || []).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
-      main.innerHTML = `
-      <section class="hero"><div class="hero-bg" style="background-image:url('${esc(site.hero_image)}')"></div>
-        <div class="wrap"><p class="label" style="color:var(--white)">${t("heroLabel")}</p>
-          <h1 class="display">ROD-R</h1>
-          <div class="hero-row"><p class="lead">${esc(L(site, "tagline"))}</p><div class="stream">${linksHTML(site.streaming)}</div></div></div></section>
-      ${r ? `<section class="block"><div class="wrap feature">
-        <a class="rv" href="/musique/">${coverHTML(r)}</a>
-        <div class="txt rv"><p class="label red">${t("latest")} · ${esc(r.type)} · ${esc(r.year)}</p><h2 class="title">${esc(r.title)}</h2><p class="lead muted">${esc(L(r, "text"))}</p><div class="stream">${linksHTML(r.links, "btn red")}</div><a class="more" href="/musique/">${t("allMusic")} →</a></div></div></section>` : ""}
-      <section class="block"><div class="wrap"><div class="head"><h2 class="title rv">${t("upcoming")}</h2><a class="more" href="/live/">${t("allDates")} →</a></div>
-        <div class="dates">${up.length ? up.map(dateRow).join("") : `<p class="muted" style="padding:24px 0">${t("noDates")}</p>`}</div></div></section>
-      ${v ? `<section class="block"><div class="wrap"><div class="head"><h2 class="title rv">${t("live")}</h2><p class="label">${esc(v.title)}</p></div>${videoHTML(v).replace('<p class="label">' + esc(v.title) + "</p>", "")}</div></section>` : ""}
-      ${ns.length ? `<section class="block"><div class="wrap"><div class="head"><h2 class="title rv">${t("news")}</h2><a class="more" href="/news/">${t("allNews")} →</a></div><div class="grid g3">${ns.map(newsCard).join("")}</div></div></section>` : ""}`;
-    },
-    async music(main) {
-      const [rel, vids] = await Promise.all([load("releases"), load("videos")]);
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">${t("discography")}</p><h1 class="display rv" style="margin:16px 0 clamp(48px,7vw,96px)">${t("music")}</h1>
-        ${(rel.items || []).map(r => `<article class="release rv">
-          <div>${coverHTML(r)}</div>
-          <div class="info"><p class="label">${esc(r.type === "Single" ? t("single") : r.type)} · ${esc(r.year)}${r.label ? " · " + esc(r.label) : ""}</p><h2>${esc(r.title)}</h2>
-            <div class="cols"><div><p class="label" style="margin-bottom:10px">${t("info")}</p><p class="muted">${esc(L(r, "text"))}</p></div>
-            <div><p class="label" style="margin-bottom:10px">${t("tracklist")}</p><ol class="tracks">${(r.tracks || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div></div>
-            ${(r.links || []).some(l => l.url) ? `<div class="stream">${linksHTML(r.links)}</div>` : ""}</div></article>`).join("")}</div></section>
-      <section class="block"><div class="wrap"><div class="head"><h2 class="title rv">${t("videos")}</h2></div><div class="grid g2">${(vids.items || []).map(videoHTML).join("")}</div></div></section>`;
-    },
-    async live(main) {
-      const [dates, vids] = await Promise.all([load("dates"), load("videos")]);
-      const up = upcomingOf(dates), v = (vids.items || [])[0];
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">Tour</p><h1 class="display rv" style="margin:16px 0 clamp(48px,7vw,96px)">${t("live")}</h1>
-        <div class="dates">${up.length ? up.map(dateRow).join("") : `<p class="muted" style="padding:24px 0">${t("noDates")}</p>`}</div></div></section>
-        <section class="block"><div class="wrap feature"><div class="txt rv"><p class="label red">${t("liveTitle")}</p><h2 class="title">Live A/V</h2><p class="lead muted">${t("liveText")}</p><a class="more" href="/files/ROD-R_Fiche_technique_2026.pdf" target="_blank">Fiche technique ↗</a></div>
-        <div class="rv">${v ? videoHTML(v) : ""}</div></div></section>
-        ${(dates.past || []).length ? `<section class="block"><div class="wrap"><div class="head"><h2 class="title rv">${t("past")}</h2></div><ul class="past">${dates.past.map(p => `<li><b>${esc(p.year)}</b><span><span style="color:var(--white)">${esc(p.venue)}</span> — ${esc(p.city)}</span></li>`).join("")}</ul></div></section>` : ""}`;
-    },
-    async bio(main) {
-      const b = await load("bio");
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">Biographie</p><h1 class="display rv" style="margin:16px 0 clamp(48px,7vw,96px)">${t("bio")}</h1>
-        <div class="bio"><div class="portrait rv">${b.portrait ? `<img src="${esc(b.portrait)}" alt="ROD-R">` : ""}</div>
-        <div><div class="prose rv">${paras(L(b, "bio"))}</div>
-          ${(b.press || []).length ? `<p class="label" style="margin:48px 0 14px">${t("press")}</p><div class="tags">${b.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}
-          <div id="epk" style="scroll-margin-top:100px"><p class="label" style="margin:56px 0 14px">${t("epk")}</p><div class="dl">${(b.downloads || []).map(d => `<a href="${esc(d.file)}" download target="_blank">${esc(d.name)}<span>↓</span></a>`).join("")}</div></div>
-        </div></div></div></section>`;
-    },
-    async gallery(main) {
-      const g = await load("gallery");
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">Photos</p><h1 class="display rv" style="margin:16px 0 clamp(48px,7vw,96px)">${t("gallery")}</h1>
-        <div class="masonry">${(g.items || []).map(i => `<figure class="rv"><img src="${esc(i.image)}" alt="${esc(i.caption)}" loading="lazy">${i.caption ? `<figcaption>${esc(i.caption)}</figcaption>` : ""}</figure>`).join("")}</div></div></section>
-        <div class="lightbox"><img alt=""></div>`;
-      const lb = main.querySelector(".lightbox"), li = lb.querySelector("img");
-      main.querySelectorAll(".masonry img").forEach(img => img.onclick = () => { li.src = img.src; lb.classList.add("open"); });
-      lb.onclick = () => lb.classList.remove("open");
-      addEventListener("keydown", e => e.key === "Escape" && lb.classList.remove("open"));
-    },
-    async news(main) {
-      const n = await load("news");
-      const items = (n.items || []).sort((a, b) => b.date.localeCompare(a.date));
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">Actualités</p><h1 class="display rv" style="margin:16px 0 clamp(48px,7vw,96px)">${t("news")}</h1>
-        <div class="grid g3">${items.map(newsCard).join("")}</div></div></section>`;
-    },
-    async contact(main, site) {
-      const c = await load("contact");
-      main.innerHTML = `<section class="page-top"><div class="wrap"><p class="label red rv">${t("booking")}</p><h1 class="display rv" style="margin:16px 0 clamp(40px,6vw,80px)">${t("contact")}</h1>
-        <a class="bigmail rv" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
-        <div class="contacts" style="margin-top:clamp(56px,8vw,110px)">${(c.items || []).map(x => `<a class="rv" href="mailto:${esc(x.email)}"><span class="label">${esc(L(x, "role"))}</span><span class="n">${esc(x.name)}</span><span class="mono">${esc(x.email)}</span></a>`).join("")}</div></div></section>`;
-    }
-  };
-
-  /* ---------- Boot ---------- */
   (async () => {
-    const site = await load("site");
-    shell(site);
-    const main = document.querySelector("main");
-    await (pages[PAGE] || pages.home)(main, site);
-    // video click-to-play
-    document.addEventListener("click", e => {
-      const v = e.target.closest(".video[data-yt]");
-      if (v && !v.querySelector("iframe")) v.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${v.dataset.yt}?autoplay=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="YouTube"></iframe>`;
+    const [site, rel, dates, vids, bio, gal, news, contact] = await Promise.all(["site", "releases", "dates", "videos", "bio", "gallery", "news", "contact"].map(load));
+    const today = new Date().toISOString().slice(0, 10);
+    const up = (dates.upcoming || []).filter(d => d.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+    const releases = rel.items || [], videos = vids.items || [];
+    const newsItems = (news.items || []).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+    const store = site.bandcamp_url || site.linktree_url || "#";
+    const latest = releases[0];
+
+    // ticker
+    const tick = [
+      latest && `<a href="#musique">${t("latest")} — ${esc(latest.title)}</a>`,
+      ...up.map(d => `<a href="#dates">${dd(d.date).a}.${dd(d.date).b} — ${esc(d.venue)}, ${esc(d.city)}</a>`),
+      `<a href="#live">Live A/V</a>`, `<a href="mailto:${esc(site.email)}">Booking — ${esc(site.email)}</a>`
+    ].filter(Boolean).map(x => x + "<em>✕</em>").join("");
+
+    document.body.innerHTML = `
+    <header class="nav">
+      <a class="logo" href="#top">ROD<i>-</i>R</a>
+      <ul>${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}><b>↗</b>${t("store")}</a></li></ul>
+      <button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button>
+      <button class="burger" aria-expanded="false">${t("menu")}</button>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-bg" style="background-image:url('${esc(site.hero_image)}')"></div>
+        <div class="hero-tint"></div>
+        <canvas aria-hidden="true"></canvas>
+        <div class="hero-top"><span class="mono">Electronica · IDM · Live A/V</span><span class="mono grey">${esc(L(site, "tagline"))}</span></div>
+        <div class="hero-clip"><h1 class="hero-title cond">${split("ROD-R")}</h1></div>
+        <div class="ticker"><div>${tick}${tick}</div></div>
+      </section>
+
+      <section class="sec" id="musique">${head("musique", `${releases.length} ${t("releases")}`)}
+        <div class="rels">${releases.map((r, i) => `<div class="rel${i === 0 ? " open" : ""}">
+          <button class="rel-row" data-i="${i}" aria-expanded="${i === 0}"><span class="yr mono grey">${esc(r.year)}</span><span class="t">${esc(r.title)}</span><span class="ty mono grey">${esc(r.type)}</span><span class="lb mono grey">${esc(r.label)}</span><span class="pl">+</span></button>
+          <div class="rel-body"><div><div class="rel-in">
+            ${cover(r)}
+            <div><p class="mono grey" style="margin-bottom:10px">${t("info")}</p><p style="font-size:19px;line-height:1.4;margin-bottom:24px">${esc(L(r, "text"))}</p><div class="row-btns">${btns(r.links, "btn fill")}</div></div>
+            <div><p class="mono grey" style="margin-bottom:10px">${t("tracklist")}</p><ol class="tracks">${(r.tracks || []).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+          </div></div></div></div>`).join("")}</div>
+        <div class="row-btns body" style="padding-top:28px;padding-bottom:28px">${btns(site.streaming)}</div>
+      </section>
+
+      <section class="sec" id="dates">${head("dates", `${up.length} ${t("upcoming")}`)}
+        <div>${up.length ? up.map(d => { const x = dd(d.date); return `<div class="date rv"><span class="mono grey">${x.b}</span><span class="d">${x.a}</span><span class="v">${esc(d.venue)}</span><span class="grey">${esc(d.city)}${d.info ? " — " + esc(d.info) : ""}</span>${d.ticket_url ? `<a class="btn" href="${esc(d.ticket_url)}"${ext(d.ticket_url)}>${t("tickets")} ↗</a>` : "<span></span>"}</div>`; }).join("") : `<p class="body grey">${t("noDates")}</p>`}</div>
+        ${(dates.past || []).length ? `<p class="mono grey" style="padding:44px var(--pad) 14px">${t("past")}</p><ul class="past">${dates.past.map(p => `<li><b>${esc(p.year)}</b><span><span style="color:var(--white)">${esc(p.venue)}</span> — ${esc(p.city)}</span></li>`).join("")}</ul>` : ""}
+      </section>
+
+      <section class="sec" id="live">${head("live", "45'")}
+        <div class="live-band"><div class="bg" style="background-image:url('/images/live-typo.jpg')"></div>
+          <div class="txt rv"><p class="big">${t("liveText")}</p>
+            <div class="facts"><div><strong>45</strong><span class="mono grey">${t("minutes")}</span></div><div><strong>7</strong><span class="mono grey">${t("acts")}</span></div><div><strong>A/V</strong><span class="mono grey">${t("screen")}</span></div></div>
+            <div class="row-btns"><a class="btn fill" href="mailto:${esc(site.email)}?subject=Booking%20ROD-R%20Live%20A%2FV">Booking ↗</a><a class="btn" href="/files/ROD-R_Fiche_technique_2026.pdf" target="_blank">${t("techsheet")} ↓</a></div></div></div>
+      </section>
+
+      <section class="sec" id="videos">${head("videos", `${videos.length}`)}
+        <div class="vids">${videos.map(video).join("")}</div>
+      </section>
+
+      <section class="sec" id="bio">${head("bio")}
+        <div class="bio">
+          <div class="rv">${paras(L(bio, "bio")).slice(0, 1).map(p => `<p class="lead">${esc(p)}</p>`).join("")}
+            ${bio.portrait ? `<div class="portrait"><img src="${esc(bio.portrait)}" alt="ROD-R" loading="lazy"></div>` : ""}</div>
+          <div class="rv"><div class="prose">${paras(L(bio, "bio")).slice(1).map(p => `<p>${esc(p)}</p>`).join("")}</div>
+            ${(bio.press || []).length ? `<p class="mono grey" style="margin-top:36px">${t("press")}</p><div class="tags">${bio.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}
+            <p class="mono grey" id="epk" style="margin-top:44px">${t("epk")}</p><div class="dl">${(bio.downloads || []).map(d => `<a href="${esc(d.file)}" target="_blank" download>${esc(d.name)}<span>↓</span></a>`).join("")}</div></div>
+        </div>
+      </section>
+
+      <section class="sec" id="galerie">${head("galerie", t("drag"))}
+        <div class="strip">${(gal.items || []).map(g => `<figure><img src="${esc(g.image)}" alt="${esc(g.caption)}" loading="lazy" draggable="false">${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
+      </section>
+
+      <section class="sec" id="news">${head("news")}
+        <div class="news">${newsItems.map(n => { const tag = n.link ? "a" : "div"; const x = dd(n.date); return `<${tag} class="n rv"${n.link ? ` href="${esc(n.link)}"${ext(n.link)}` : ""}>${n.image ? `<div class="img"><img src="${esc(n.image)}" alt="" loading="lazy"></div>` : ""}<span class="mono red">${x.a}.${x.b}</span><h3>${esc(L(n, "title"))}</h3><p class="grey">${esc(L(n, "text"))}</p></${tag}>`; }).join("")}</div>
+      </section>
+
+      <section class="sec" id="contact">${head("contact", t("booking"))}
+        <a class="bigmail" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
+        <div class="contacts">${(contact.items || []).map(c => `<a href="mailto:${esc(c.email)}"><span class="mono grey">${esc(L(c, "role"))}</span><strong>${esc(c.name)}</strong><span class="mono">${esc(c.email)}</span></a>`).join("")}</div>
+        <div class="nl"><h2 class="cond">${t("stay")}</h2><div style="display:flex;flex-direction:column;justify-content:flex-end;gap:16px"><p class="mono">${t("nlText")}</p>
+          ${site.newsletter_url ? `<form action="${esc(site.newsletter_url)}" method="post" target="_blank"><input type="email" name="EMAIL" required placeholder="${t("email")}"><button type="submit">${t("subscribe")}</button></form>`
+            : `<a class="soon" href="mailto:${esc(site.email)}?subject=Newsletter%20ROD-R">${t("soon")}</a>`}</div></div>
+      </section>
+    </main>
+
+    <footer>
+      <ul class="mono">${(site.socials || []).map(s => `<li><a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)} ↗</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
+      <span class="mono grey">© ${new Date().getFullYear()} ROD-R — ${t("rights")}</span>
+      <div class="foot-logo cond" aria-hidden="true">ROD-R</div>
+    </footer>
+    <div class="preview" aria-hidden="true"></div>
+    <div class="lightbox"><img alt=""></div>`;
+
+    // nav
+    const nav = document.querySelector(".nav"), ul = nav.querySelector("ul"), burger = nav.querySelector(".burger");
+    burger.onclick = () => { const o = ul.classList.toggle("open"); burger.textContent = o ? t("close") : t("menu"); burger.setAttribute("aria-expanded", o); };
+    ul.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { ul.classList.remove("open"); burger.textContent = t("menu"); }));
+    nav.querySelector(".lang").onclick = () => { set("lang", LANG === "fr" ? "en" : "fr"); const u = new URL(location); u.searchParams.delete("lang"); location.href = u; };
+
+    // active section + reveal
+    const links = [...ul.querySelectorAll("a[data-s]")];
+    if ("IntersectionObserver" in window) {
+      const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.dataset.s === e.target.id)); }), { rootMargin: "-45% 0px -50% 0px" });
+      document.querySelectorAll("section.sec").forEach(s => so.observe(s));
+      const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); } }), { threshold: .15 });
+      document.querySelectorAll(".rv, .sec-head").forEach(el => ro.observe(el));
+    } else document.querySelectorAll(".rv, .sec-head").forEach(el => el.classList.add("in"));
+
+    // releases accordion + cursor cover preview
+    const pv = document.querySelector(".preview");
+    let pvRaf;
+    document.querySelectorAll(".rel-row").forEach(b => {
+      b.onclick = () => { const r = b.parentElement, o = r.classList.toggle("open"); b.setAttribute("aria-expanded", o); };
+      b.addEventListener("mouseenter", () => { const r = releases[b.dataset.i]; if (b.parentElement.classList.contains("open")) return; pv.innerHTML = cover(r); pv.classList.add("on"); });
+      b.addEventListener("mouseleave", () => pv.classList.remove("on"));
+      b.addEventListener("mousemove", e => { cancelAnimationFrame(pvRaf); pvRaf = requestAnimationFrame(() => { pv.style.left = e.clientX + 170 + "px"; pv.style.top = e.clientY + "px"; }); });
+      b.addEventListener("click", () => pv.classList.remove("on"));
     });
-    // reveal
-    const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { x.target.classList.add("in"); io.unobserve(x.target); } }), { threshold: .12 }) : null;
-    document.querySelectorAll(".rv").forEach(el => io ? io.observe(el) : el.classList.add("in"));
+
+    // videos
+    document.addEventListener("click", e => { const v = e.target.closest(".video[data-yt]"); if (v && !v.querySelector("iframe")) v.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${v.dataset.yt}?autoplay=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="YouTube"></iframe>`; });
+
+    // gallery: drag to scroll + lightbox
+    const strip = document.querySelector(".strip"), lb = document.querySelector(".lightbox"), lbi = lb.querySelector("img");
+    let down = false, sx = 0, sl = 0, moved = 0;
+    strip.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") return; down = true; moved = 0; sx = e.clientX; sl = strip.scrollLeft; strip.classList.add("drag"); });
+    addEventListener("pointermove", e => { if (!down) return; moved = Math.abs(e.clientX - sx); strip.scrollLeft = sl - (e.clientX - sx); });
+    addEventListener("pointerup", () => { down = false; strip.classList.remove("drag"); });
+    strip.querySelectorAll("img").forEach(img => img.addEventListener("click", () => { if (moved > 6) return; lbi.src = img.src; lb.classList.add("open"); }));
+    lb.onclick = () => lb.classList.remove("open");
+    addEventListener("keydown", e => e.key === "Escape" && lb.classList.remove("open"));
+
+    // parallax on live band
+    const band = document.querySelector(".live-band .bg");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce) addEventListener("scroll", () => { const r = band.parentElement.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight) band.style.transform = `translateY(${(r.top / innerHeight) * -60}px)`; }, { passive: true });
+
+    // fit giant titles to the viewport width
+    const fit = () => document.querySelectorAll(".hero-title, .foot-logo").forEach(el => {
+      el.style.fontSize = "100px"; el.style.display = "inline-block"; el.style.paddingLeft = el.style.paddingRight = "0";
+      const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pad")) || 24;
+      const w = el.scrollWidth; el.style.display = ""; el.style.paddingLeft = el.style.paddingRight = "";
+      el.style.fontSize = Math.floor(100 * (innerWidth - pad * 2) / w) + "px";
+    });
+    fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
+
+    // hero canvas: oscilloscope lines reacting to the pointer
+    const cv = document.querySelector(".hero canvas"), cx = cv.getContext("2d");
+    let W, H, mx = .5, my = .5, tt = 0, visible = true;
+    const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); };
+    size(); addEventListener("resize", size);
+    document.querySelector(".hero").addEventListener("pointermove", e => { mx = e.clientX / W; my = e.clientY / H; });
+    new IntersectionObserver(es => visible = es[0].isIntersecting).observe(cv);
+    const draw = () => {
+      if (visible) {
+        cx.clearRect(0, 0, W, H);
+        const lines = 7, base = H * .42;
+        for (let l = 0; l < lines; l++) {
+          cx.beginPath();
+          const amp = (18 + l * 9) * (0.4 + my * 1.4), f = 0.004 + l * 0.0011 + mx * 0.004, ph = tt * (0.6 + l * 0.15);
+          for (let x = 0; x <= W; x += 4) {
+            const env = Math.sin((x / W) * Math.PI);
+            const y = base + (l - lines / 2) * 14 + Math.sin(x * f + ph) * amp * env + Math.sin(x * f * 3.1 - ph * 1.7) * amp * .25 * env;
+            x ? cx.lineTo(x, y) : cx.moveTo(x, y);
+          }
+          cx.strokeStyle = l === 3 ? "rgba(225,37,27,.95)" : `rgba(239,238,233,${0.08 + l * 0.025})`;
+          cx.lineWidth = l === 3 ? 1.6 : 1;
+          cx.stroke();
+        }
+        if (!reduce) tt += 0.016;
+      }
+      requestAnimationFrame(draw);
+    };
+    draw();
   })();
 })();
