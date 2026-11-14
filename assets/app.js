@@ -137,8 +137,8 @@
     </footer>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="grain-type" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="1" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  6 0 0 0 -1.75" result="holes"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  9 0 0 0 -2.2" result="holes"/>
       <feComposite in="rough" in2="holes" operator="in"/>
     </filter></svg>
     <div class="preview" aria-hidden="true"></div>
@@ -162,6 +162,34 @@
     // grain "boil" on the titles: reseed the noise a few times per second
     const turb = document.querySelector("#grain-type feTurbulence");
     if (turb && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let sd = 1; setInterval(() => { sd = (sd % 7) + 1; turb.setAttribute("seed", sd); }, 140); }
+
+    // cursor trail made of grain, over the whole site
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches && matchMedia("(pointer: fine)").matches) {
+      const tc = document.createElement("canvas"); tc.className = "trail"; document.body.appendChild(tc);
+      const tx = tc.getContext("2d"); let TW, TH, G = [], lx = null, ly = null;
+      const ts = () => { const d = Math.min(devicePixelRatio || 1, 2); TW = innerWidth; TH = innerHeight; tc.width = TW * d; tc.height = TH * d; tx.setTransform(d, 0, 0, d, 0, 0); };
+      ts(); addEventListener("resize", ts);
+      addEventListener("pointermove", e => {
+        const x = e.clientX, y = e.clientY;
+        if (lx !== null) {
+          const dx = x - lx, dy = y - ly, dist = Math.hypot(dx, dy), n = Math.min(Math.round(dist * 1.6), 60);
+          for (let i = 0; i < n; i++) { const k = Math.random(); G.push({ x: lx + dx * k + (Math.random() - .5) * 10, y: ly + dy * k + (Math.random() - .5) * 10, vx: (Math.random() - .5) * .6 - dx * .01, vy: (Math.random() - .5) * .6 - dy * .01, life: 1, s: Math.random() < .85 ? 1 : 1.8, red: Math.random() < .12 }); }
+          if (G.length > 2500) G.splice(0, G.length - 2500);
+        }
+        lx = x; ly = y;
+      }, { passive: true });
+      const tick = () => {
+        tx.clearRect(0, 0, TW, TH);
+        for (let i = G.length - 1; i >= 0; i--) {
+          const g = G[i]; g.x += g.vx; g.y += g.vy; g.vy += 0.015; g.vx *= .97; g.vy *= .97; g.life -= 0.018;
+          if (g.life <= 0) { G.splice(i, 1); continue; }
+          tx.fillStyle = g.red ? `rgba(225,37,27,${g.life})` : `rgba(239,238,233,${g.life * .9})`;
+          tx.fillRect(g.x, g.y, g.s, g.s);
+        }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    }
 
     // releases accordion + cursor cover preview
     const pv = document.querySelector(".preview");
