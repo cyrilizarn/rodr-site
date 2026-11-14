@@ -1,15 +1,16 @@
-@font-face { font-family: "PP Gosha Sans"; src: url("/assets/fonts/PPGoshaSans-Bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Px Grotesk"; src: url("/assets/fonts/PxGrotesk-Bold.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
 :root {
   --black: #0a0a0a;
   --ink: #141414;
   --white: #efeee9;
   --grey: #858585;
-  --line: rgba(239, 238, 233, .16);
+  --line: transparent;
+  --edge: rgba(239, 238, 233, .35);
   --red: #e1251b;
   --pad: clamp(14px, 2.4vw, 32px);
   --sans: "Geist", system-ui, sans-serif;
   --mono: "Geist Mono", ui-monospace, monospace;
-  --cond: "PP Gosha Sans", "Geist", sans-serif;
+  --cond: "Px Grotesk", "Geist", sans-serif;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; scroll-padding-top: 52px; overflow-x: clip; }
@@ -86,7 +87,7 @@ body::after { content: ""; position: fixed; inset: -50%; pointer-events: none; z
 .body { padding: clamp(32px, 5vw, 72px) var(--pad); }
 
 /* buttons */
-.btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 13px 18px; border: 1px solid var(--line); transition: background .2s, color .2s, border-color .2s; }
+.btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; padding: 13px 18px; border: 1px solid var(--edge); transition: background .2s, color .2s, border-color .2s; }
 .btn:hover { background: var(--white); color: var(--black); border-color: var(--white); }
 .btn.fill { background: var(--red); border-color: var(--red); }
 .btn.fill:hover { background: var(--white); border-color: var(--white); color: var(--black); }
@@ -173,7 +174,7 @@ body::after { content: ""; position: fixed; inset: -50%; pointer-events: none; z
 .dl a:hover { color: var(--red); padding-left: 10px; }
 .dl a span { font-family: var(--mono); font-size: 12px; font-weight: 400; }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.tags span { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); padding: 6px 9px; color: var(--grey); }
+.tags span { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--edge); padding: 6px 9px; color: var(--grey); }
 @media (max-width: 900px) { .bio { grid-template-columns: 1fr; } .bio > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); } }
 
 /* GALLERY — horizontal strip */
