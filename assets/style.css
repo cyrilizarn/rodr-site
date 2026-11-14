@@ -54,7 +54,7 @@ body::after { content: ""; position: fixed; inset: -50%; pointer-events: none; z
 .nav .burger { display: none; font-size: 15px; font-weight: 700; }
 /* le contenu laisse de la place au cadre */
 body .sec { padding-right: calc(var(--pad) + 130px); }
-body #live, body #galerie { padding-right: 0; }
+body #live, body #gallery { padding-right: 0; }
 @media (max-width: 1000px) {
   .nav { mix-blend-mode: normal; }
   .tc, .where { display: none; }
@@ -64,7 +64,7 @@ body #live, body #galerie { padding-right: 0; }
   .nav ul a { font-family: var(--cond); font-size: 40px; text-transform: uppercase; opacity: 1; line-height: 1.1; }
   .nav ul a b { display: none; }
   .burger { z-index: 2; }
-  body .sec { padding-right: var(--pad); } body #live, body #galerie { padding-right: 0; }
+  body .sec { padding-right: var(--pad); } body #live, body #gallery { padding-right: 0; }
   .bl, .br { bottom: 16px; }
 }
 
@@ -150,7 +150,14 @@ body #live, body #galerie { padding-right: 0; }
 .past li { list-style: none; break-inside: avoid; display: grid; grid-template-columns: 54px 1fr; padding: 8px 0; font-size: 16px; color: var(--grey); }
 .past li b { font-weight: 700; color: var(--red); }
 @media (max-width: 900px) { .past { columns: 1; } }
-#dates > p.mono { padding: clamp(64px, 8vw, 110px) 0 18px !important; font-weight: 700; color: var(--white) !important; }
+.live-dates { padding: clamp(64px, 8vw, 110px) calc(var(--pad) + 130px) 0 var(--pad); }
+.live-dates > p.mono { font-weight: 700; margin: clamp(48px, 6vw, 90px) 0 12px; }
+.live-dates > p.mono:first-child { margin-top: 0; }
+@media (max-width: 1000px) { .live-dates { padding-right: var(--pad); } }
+.pro { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 7vw, 140px); margin-bottom: var(--space); }
+.pro h3 { font-size: clamp(40px, 5vw, 80px); margin-bottom: 18px; }
+.pro p { max-width: 40ch; }
+@media (max-width: 900px) { .pro { grid-template-columns: 1fr; } }
 
 /* LIVE A/V */
 #live { padding-left: 0; padding-right: 0; }
@@ -191,8 +198,8 @@ body #live, body #galerie { padding-right: 0; }
 @media (max-width: 900px) { .bio { grid-template-columns: 1fr; } }
 
 /* GALLERY — pleine largeur */
-#galerie { padding-left: 0; padding-right: 0; }
-#galerie .sec-head { padding: 0 var(--pad); }
+#gallery { padding-left: 0; padding-right: 0; }
+#gallery .sec-head { padding: 0 var(--pad); }
 .strip { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x proximity; cursor: grab; scrollbar-width: none; padding: 0 var(--pad); scroll-padding: 0 var(--pad); }
 .strip::-webkit-scrollbar { display: none; }
 .strip.drag { cursor: grabbing; scroll-snap-type: none; }
@@ -218,7 +225,7 @@ a.n:hover h3 { color: var(--red); }
 /* CONTACT */
 .bigmail { display: block; font-family: var(--cond); font-weight: 700; text-transform: uppercase; font-size: clamp(34px, 7.6vw, 140px); line-height: .9; transition: color .25s; word-break: break-all; }
 .bigmail:hover { color: var(--red); }
-.contacts { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(24px, 3vw, 48px); margin: clamp(64px, 8vw, 120px) 0 var(--space); }
+.contacts { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(24px, 3vw, 48px); margin: clamp(64px, 8vw, 120px) 0 clamp(90px, 11vw, 160px); }
 .contacts a { display: flex; flex-direction: column; gap: 4px; transition: color .2s; }
 .contacts a .mono.grey { font-size: 15px; }
 .contacts a .mono:last-child { font-size: 15px; }

@@ -8,14 +8,14 @@
   document.documentElement.lang = LANG;
 
   const UI = {
-    fr: { music: "Musique", dates: "Dates", live: "Live A/V", videos: "Vidéos", bio: "Bio", gallery: "Galerie", news: "News", contact: "Contact", store: "Store",
+    fr: { about: "À propos", disco: "Discographie", music: "Musique", dates: "Dates", live: "Live", videos: "Vidéos", bio: "Bio", gallery: "Galerie", news: "News", contact: "Contact / Pro", store: "Store", pro: "Espace pro", proText: "Presskit, bio, fiche technique et visuels pour programmateurs, bookers et journalistes.", photosHD: "Photos HD & logos — sur demande", upcomingT: "À venir", captation: "Captation live",
       menu: "Menu", close: "Fermer", info: "Info", tracklist: "Tracklist", listen: "Écouter", tickets: "Billets", noDates: "Nouvelles dates bientôt.",
       past: "Déjà joué", epk: "Presskit / EPK", press: "Presse", stay: "Reste dans la boucle.", nlText: "Sorties, dates, coulisses. Pas de spam.",
       email: "Ton e-mail", subscribe: "S'inscrire →", soon: "Newsletter bientôt — écris-nous →", releases: "sorties", upcoming: "à venir",
       liveText: "Un live en sept actes, joué sur machines analogiques et projeté sur tulle. Musique, typographie et visuels génératifs pensés comme un seul geste.",
       techsheet: "Fiche technique", minutes: "minutes", acts: "actes", screen: "tulle", play: "Lecture", drag: "Glisser →", rights: "Tous droits réservés",
       booking: "Booking · presse · contact", latest: "Nouveau" },
-    en: { music: "Music", dates: "Dates", live: "Live A/V", videos: "Videos", bio: "Bio", gallery: "Gallery", news: "News", contact: "Contact", store: "Store",
+    en: { about: "About", disco: "Discography", music: "Music", dates: "Dates", live: "Live", videos: "Videos", bio: "Bio", gallery: "Gallery", news: "News", contact: "Contact / Pro", store: "Store", pro: "Pro area", proText: "Press kit, bio, tech rider and visuals for promoters, bookers and journalists.", photosHD: "HD photos & logos — on request", upcomingT: "Upcoming", captation: "Live recording",
       menu: "Menu", close: "Close", info: "Info", tracklist: "Tracklist", listen: "Listen", tickets: "Tickets", noDates: "New dates coming soon.",
       past: "Played", epk: "Press kit / EPK", press: "Press", stay: "Stay in the loop.", nlText: "Releases, shows, behind the scenes. No spam.",
       email: "Your email", subscribe: "Subscribe →", soon: "Newsletter coming soon — email us →", releases: "releases", upcoming: "upcoming",
@@ -33,7 +33,7 @@
   const split = s => [...s].map(c => `<span>${c === " " ? "&nbsp;" : esc(c)}</span>`).join("");
   const load = n => fetch(`/content/${n}.json`, { cache: "no-cache" }).then(r => r.json()).catch(() => ({}));
 
-  const SECTIONS = [["musique", "music"], ["dates", "dates"], ["live", "live"], ["videos", "videos"], ["bio", "bio"], ["galerie", "gallery"], ["news", "news"], ["contact", "contact"]];
+  const SECTIONS = [["about", "about"], ["discography", "disco"], ["live", "live"], ["videos", "videos"], ["news", "news"], ["gallery", "gallery"], ["contact", "contact"]];
   const num = id => String(SECTIONS.findIndex(s => s[0] === id) + 1).padStart(2, "0");
   const head = (id, aside = "") => `<div class="sec-head"><span class="num">${num(id)}</span><h2 class="cond"><span>${esc(t(SECTIONS.find(s => s[0] === id)[1]))}</span></h2><span class="aside mono grey">${aside}</span></div>`;
   const cover = r => r.cover ? `<div class="cover"><img src="${esc(r.cover)}" alt="${esc(r.title)}" loading="lazy"></div>`
@@ -52,8 +52,8 @@
 
     // ticker
     const tick = [
-      latest && `<a href="#musique">${t("latest")} — ${esc(latest.title)}</a>`,
-      ...up.map(d => `<a href="#dates">${dd(d.date).a}.${dd(d.date).b} — ${esc(d.venue)}, ${esc(d.city)}</a>`),
+      latest && `<a href="#discography">${t("latest")} — ${esc(latest.title)}</a>`,
+      ...up.map(d => `<a href="#live">${dd(d.date).a}.${dd(d.date).b} — ${esc(d.venue)}, ${esc(d.city)}</a>`),
       `<a href="#live">Live A/V</a>`, `<a href="mailto:${esc(site.email)}">Booking — ${esc(site.email)}</a>`
     ].filter(Boolean).map(x => x + "<em>✕</em>").join("");
 
@@ -76,7 +76,16 @@
       </section>
       <div class="ticker"><div>${tick}${tick}</div></div>
 
-      <section class="sec" id="musique">${head("musique", `${releases.length} ${t("releases")}`)}
+      <section class="sec" id="about">${head("about")}
+        <div class="bio">
+          <div class="rv">${paras(L(bio, "bio")).slice(0, 1).map(p => `<p class="lead">${esc(p)}</p>`).join("")}
+            ${bio.portrait ? `<div class="portrait"><img src="${esc(bio.portrait)}" alt="ROD-R" loading="lazy"></div>` : ""}</div>
+          <div class="rv"><div class="prose">${paras(L(bio, "bio")).slice(1).map(p => `<p>${esc(p)}</p>`).join("")}</div>
+            ${(bio.press || []).length ? `<p class="mono grey" style="margin-top:36px">${t("press")}</p><div class="tags">${bio.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}</div>
+        </div>
+      </section>
+
+      <section class="sec" id="discography">${head("discography", `${releases.length} ${t("releases")}`)}
         <div class="rels">${releases.map((r, i) => `<div class="rel${i === 0 ? " open" : ""}">
           <button class="rel-row" data-i="${i}" aria-expanded="${i === 0}"><span class="yr mono grey">${esc(r.year)}</span><span class="t">${esc(r.title)}</span><span class="ty mono grey">${esc(r.type)}</span><span class="lb mono grey">${esc(r.label)}</span><span class="pl">+</span></button>
           <div class="rel-body"><div><div class="rel-in">
@@ -87,43 +96,37 @@
         <div class="row-btns body" style="padding-top:28px;padding-bottom:28px">${btns(site.streaming)}</div>
       </section>
 
-      <section class="sec" id="dates">${head("dates", `${up.length} ${t("upcoming")}`)}
-        <div>${up.length ? up.map(d => { const x = dd(d.date); return `<div class="date rv"><span class="mono grey">${x.b}</span><span class="d">${x.a}</span><span class="v">${esc(d.venue)}</span><span class="grey">${esc(d.city)}${d.info ? " — " + esc(d.info) : ""}</span>${d.ticket_url ? `<a class="btn" href="${esc(d.ticket_url)}"${ext(d.ticket_url)}>${t("tickets")} ↗</a>` : "<span></span>"}</div>`; }).join("") : `<p class="body grey">${t("noDates")}</p>`}</div>
-        ${(dates.past || []).length ? `<p class="mono grey" style="padding:44px var(--pad) 14px">${t("past")}</p><ul class="past">${dates.past.map(p => `<li><b>${esc(p.year)}</b><span><span style="color:var(--white)">${esc(p.venue)}</span> — ${esc(p.city)}</span></li>`).join("")}</ul>` : ""}
-      </section>
-
-      <section class="sec" id="live">${head("live", "45'")}
+      <section class="sec" id="live">${head("live", `${up.length} ${t("upcoming")}`)}
         <div class="live-band"><div class="bg" style="background-image:url('/images/live-typo.jpg')"></div>
           <div class="txt rv"><p class="big">${t("liveText")}</p>
             <div class="facts"><div><strong>45</strong><span class="mono grey">${t("minutes")}</span></div><div><strong>7</strong><span class="mono grey">${t("acts")}</span></div><div><strong>A/V</strong><span class="mono grey">${t("screen")}</span></div></div>
             <div class="row-btns"><a class="btn fill" href="mailto:${esc(site.email)}?subject=Booking%20ROD-R%20Live%20A%2FV">Booking ↗</a><a class="btn" href="/files/ROD-R_Fiche_technique_2026.pdf" target="_blank">${t("techsheet")} ↓</a></div></div></div>
+        <div class="live-dates">
+          <p class="mono">${t("upcomingT")}</p>
+          <div>${up.length ? up.map(d => { const x = dd(d.date); return `<div class="date rv"><span class="mono grey">${x.b}</span><span class="d">${x.a}</span><span class="v">${esc(d.venue)}</span><span class="grey">${esc(d.city)}${d.info ? " — " + esc(d.info) : ""}</span>${d.ticket_url ? `<a class="btn" href="${esc(d.ticket_url)}"${ext(d.ticket_url)}>${t("tickets")} ↗</a>` : "<span></span>"}</div>`; }).join("") : `<p class="grey">${t("noDates")}</p>`}</div>
+          ${(dates.past || []).length ? `<p class="mono">${t("past")}</p><ul class="past">${dates.past.map(p => `<li><b>${esc(p.year)}</b><span><span style="color:var(--white)">${esc(p.venue)}</span> — ${esc(p.city)}</span></li>`).join("")}</ul>` : ""}
+        </div>
       </section>
 
       <section class="sec" id="videos">${head("videos", `${videos.length}`)}
         <div class="vids">${videos.map(video).join("")}</div>
       </section>
 
-      <section class="sec" id="bio">${head("bio")}
-        <div class="bio">
-          <div class="rv">${paras(L(bio, "bio")).slice(0, 1).map(p => `<p class="lead">${esc(p)}</p>`).join("")}
-            ${bio.portrait ? `<div class="portrait"><img src="${esc(bio.portrait)}" alt="ROD-R" loading="lazy"></div>` : ""}</div>
-          <div class="rv"><div class="prose">${paras(L(bio, "bio")).slice(1).map(p => `<p>${esc(p)}</p>`).join("")}</div>
-            ${(bio.press || []).length ? `<p class="mono grey" style="margin-top:36px">${t("press")}</p><div class="tags">${bio.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}
-            <p class="mono grey" id="epk" style="margin-top:44px">${t("epk")}</p><div class="dl">${(bio.downloads || []).map(d => `<a href="${esc(d.file)}" target="_blank" download>${esc(d.name)}<span>↓</span></a>`).join("")}</div></div>
-        </div>
-      </section>
-
-      <section class="sec" id="galerie">${head("galerie", t("drag"))}
-        <div class="strip">${(gal.items || []).map(g => `<figure><img src="${esc(g.image)}" alt="${esc(g.caption)}" loading="lazy" draggable="false">${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
-      </section>
-
       <section class="sec" id="news">${head("news")}
         <div class="news">${newsItems.map(n => { const tag = n.link ? "a" : "div"; const x = dd(n.date); return `<${tag} class="n rv"${n.link ? ` href="${esc(n.link)}"${ext(n.link)}` : ""}>${n.image ? `<div class="img"><img src="${esc(n.image)}" alt="" loading="lazy"></div>` : ""}<span class="mono red">${x.a}.${x.b}</span><h3>${esc(L(n, "title"))}</h3><p class="grey">${esc(L(n, "text"))}</p></${tag}>`; }).join("")}</div>
+      </section>
+
+      <section class="sec" id="gallery">${head("gallery", t("drag"))}
+        <div class="strip">${(gal.items || []).map(g => `<figure><img src="${esc(g.image)}" alt="${esc(g.caption)}" loading="lazy" draggable="false">${g.caption ? `<figcaption>${esc(g.caption)}</figcaption>` : ""}</figure>`).join("")}</div>
       </section>
 
       <section class="sec" id="contact">${head("contact", t("booking"))}
         <a class="bigmail" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
         <div class="contacts">${(contact.items || []).map(c => `<a href="mailto:${esc(c.email)}"><span class="mono grey">${esc(L(c, "role"))}</span><strong>${esc(c.name)}</strong><span class="mono">${esc(c.email)}</span></a>`).join("")}</div>
+        <div class="pro" id="pro">
+          <div><h3 class="cond">${t("pro")}</h3><p class="grey">${t("proText")}</p></div>
+          <div class="dl">${(bio.downloads || []).map(d => `<a href="${esc(d.file)}" target="_blank" download>${esc(d.name)}<span>↓</span></a>`).join("")}<a href="mailto:${esc(site.email)}?subject=Photos%20HD%20%2F%20logos%20ROD-R">${t("photosHD")}<span>↗</span></a></div>
+        </div>
         <div class="nl"><h2 class="cond">${t("stay")}</h2><div style="display:flex;flex-direction:column;justify-content:flex-end;gap:16px"><p class="mono">${t("nlText")}</p>
           ${site.newsletter_url ? `<form action="${esc(site.newsletter_url)}" method="post" target="_blank"><input type="email" name="EMAIL" required placeholder="${t("email")}"><button type="submit">${t("subscribe")}</button></form>`
             : `<a class="soon" href="mailto:${esc(site.email)}?subject=Newsletter%20ROD-R">${t("soon")}</a>`}</div></div>
