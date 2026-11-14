@@ -235,6 +235,62 @@
     });
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
+    if (qs.get("hero") === "photo") {
+      // TEST: live photo rebuilt from interactive grain
+      const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
+      hero.classList.add("photo-mode");
+      let W = 0, H = 0, P = [], visible = true, tt = 0, shock = null;
+      const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
+      const img = new Image();
+      const build = () => {
+        const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+        if (!img.naturalWidth) return;
+        const s = Math.max(W / img.naturalWidth, H / img.naturalHeight), iw = img.naturalWidth * s, ih = img.naturalHeight * s, ox = (W - iw) / 2, oy = (H - ih) / 2;
+        const step = W < 700 ? 4 : 3, gw = Math.ceil(W / step), gh = Math.ceil(H / step);
+        const off = document.createElement("canvas"); off.width = gw; off.height = gh;
+        const oc = off.getContext("2d"); oc.drawImage(img, ox / step, oy / step, iw / step, ih / step);
+        const data = oc.getImageData(0, 0, gw, gh).data, max = W < 700 ? 9000 : 26000; P = [];
+        for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+          const i = (y * gw + x) * 4, r = data[i], g = data[i + 1], b = data[i + 2], e = Math.max(r, g, b) / 255;
+          if (Math.random() < Math.pow(e, 1.6) * 1.1) {
+            const hx = x * step + Math.random() * step, hy = y * step + Math.random() * step;
+            P.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, c: `rgb(${Math.min(255, r * 1.8) | 0},${Math.min(255, g * 1.4) | 0},${Math.min(255, b * 1.4) | 0})`, k: 0.03 + Math.random() * 0.04, ph: Math.random() * 6.28, s: Math.random() < 0.9 ? 1.2 : 2 });
+          }
+        }
+        if (P.length > max) { for (let i = P.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [P[i], P[j]] = [P[j], P[i]]; } P.length = max; }
+        P.forEach(p => { p.x = p.hx + (Math.random() - 0.5) * W * 0.6; p.y = p.hy + (Math.random() - 0.5) * H * 0.6; });
+      };
+      img.onload = build; addEventListener("resize", () => { clearTimeout(build.t); build.t = setTimeout(build, 200); });
+      const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
+      hero.addEventListener("pointermove", setMouse);
+      hero.addEventListener("pointerdown", e => { setMouse(e); shock = { x: mouse.x, y: mouse.y, t: 0 }; });
+      hero.addEventListener("pointerleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
+      new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
+      const frame = () => {
+        if (visible && P.length) {
+          tt += 0.016; cx.clearRect(0, 0, W, H);
+          const R = Math.min(W, H) * 0.2, R2 = R * R, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 60);
+          if (shock) shock.t += 16;
+          for (const p of P) {
+            // grain lives on its own: slight shimmer around home position
+            const bx = p.hx + Math.sin(tt * 1.7 + p.ph) * 0.9, by = p.hy + Math.cos(tt * 1.3 + p.ph) * 0.9;
+            p.vx += (bx - p.x) * p.k; p.vy += (by - p.y) * p.k;
+            if (mouse.on) { const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy; if (d2 < R2) { const d = Math.sqrt(d2) || 1, f = 1 - d / R, f2 = f * f * (2.4 + ms * 0.1); p.vx += dx / d * f2 - dy / d * f2 * 0.7; p.vy += dy / d * f2 + dx / d * f2 * 0.7; } }
+            if (shock) { const dx = p.x - shock.x, dy = p.y - shock.y, d = Math.hypot(dx, dy) || 1, band = Math.abs(d - shock.t); if (band < 50) { const f = (1 - band / 50) * 7; p.vx += dx / d * f; p.vy += dy / d * f; } }
+            p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
+            const v = Math.hypot(p.vx, p.vy);
+            cx.fillStyle = v > 3 ? "#efeee9" : p.c; cx.globalAlpha = v > 3 ? Math.min(1, 0.4 + v / 12) : 1;
+            cx.fillRect(p.x, p.y, p.s, p.s);
+          }
+          cx.globalAlpha = 1;
+          if (shock && shock.t > Math.max(W, H) * 1.2) shock = null;
+          mouse.vx *= 0.82; mouse.vy *= 0.82;
+        }
+        requestAnimationFrame(frame);
+      };
+      frame();
+      img.src = "/images/live-red-screen.jpg";
+    } else {
     // hero: a black hole at the centre emitting grain, disturbed by the pointer
     const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
     const title = hero.querySelector(".hero-title");
@@ -294,5 +350,6 @@
     };
     if (reduce) { cx.fillStyle = "#0a0a0a"; cx.fillRect(0, 0, W, H); P.forEach(p => { cx.fillStyle = `rgba(239,238,233,.6)`; cx.fillRect(p.x, p.y, p.s, p.s); }); cx.beginPath(); cx.arc(CX, CY, R0, 0, Math.PI * 2); cx.fill(); }
     else frame();
+    }
   })();
 })();

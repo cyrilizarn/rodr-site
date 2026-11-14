@@ -263,3 +263,5 @@ footer a:hover { color: var(--red); }
 /* grain qui ronge la typo (inspiré d'inherited.band) */
 .cond, .nav .logo, .rel-row .t, .cover.ph strong, .date .d, .date .v, .facts strong, .dl a, .news h3, .bigmail { filter: url(#grain-type); }
 .trail { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 250; }
+.hero.photo-mode .hero-title { left: var(--pad); top: auto; bottom: 90px; transform: none; font-size: clamp(64px, 11vw, 190px) !important; }
+.hero.photo-mode .hero-sub { left: var(--pad); top: auto; bottom: 70px; transform: none; }
