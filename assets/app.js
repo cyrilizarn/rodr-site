@@ -380,7 +380,7 @@
     const spawn = (p, fresh) => {
       const a = Math.random() * Math.PI * 2, r = R0 * (1 + Math.random() * 0.04);
       p.x = CX + Math.cos(a) * r; p.y = CY + Math.sin(a) * r;
-      const out = 0.25 + Math.random() * 0.9;          // radial push
+      const out = 2.6 + Math.random() * 4.2;           // fast burst out of the rim, then slows down
       p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
       p.max = R0 * (1.25 + Math.pow(Math.random(), 2.2) * 3.2); // most die close to the rim -> dense halo
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
@@ -430,8 +430,8 @@
           const nd = Math.hypot(p.x - CX, p.y - CY);
           if (nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
           const life = 1 - (nd - R0) / (p.max - R0);
-          const v = Math.min(Math.hypot(p.vx, p.vy) / 6, 1);
-          cx.fillStyle = p.red || v > 0.6 ? `rgba(225,37,27,${(0.5 + life * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + life * 0.85) * fade})`;
+          const v = Math.min(Math.hypot(p.vx, p.vy) / 11, 1);
+          cx.fillStyle = p.red || v > 0.7 ? `rgba(225,37,27,${(0.5 + life * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + life * 0.85) * fade})`;
           cx.fillRect(p.x, p.y, p.s, p.s);
         }
         if (PORTAL) { cx.save(); cx.globalCompositeOperation = "destination-out"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill(); cx.restore(); }   // window onto the live
