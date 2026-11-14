@@ -383,7 +383,7 @@
       p.rim = Math.random() < 0.42;                     // slow grains keep the rim sharp
       const out = p.rim ? 0.1 + Math.random() * 0.35 : 5 + Math.random() * 7;   // others burst out fast
       p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
-      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : R0 * (1.3 + Math.pow(Math.random(), 1.8) * 3.4);
+      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : Math.min(R0 * (1.3 + Math.pow(Math.random(), 1.8) * 1.9), Math.min(W, H) * 0.47);   // fade out before the screen edge
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
       if (fresh) { const k = Math.random(); const rr = R0 + (p.max - R0) * k; p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
       return p;
