@@ -344,7 +344,23 @@
     } else {
     // hero: a black hole at the centre emitting grain, disturbed by the pointer
     const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
-    const title = hero.querySelector(".hero-title");
+    const title = hero.querySelector(".hero-title"), sub = hero.querySelector(".hero-sub");
+    const PORTAL = qs.get("hero") === "portal";
+    let pv = null, prog = 0, R0base = 100;
+    if (PORTAL) {
+      // TEST: the black hole is a window onto the live; scrolling opens it to full screen
+      hero.classList.add("portal");
+      const stage = document.createElement("div"); stage.className = "portal-stage";
+      const id = ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY";
+      pv = document.createElement("div"); pv.className = "portal-video";
+      pv.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
+      stage.append(pv, cv, title, sub); hero.prepend(stage);
+      const hint = document.createElement("p"); hint.className = "portal-hint"; hint.textContent = LANG === "fr" ? "Entrer dans le live ↓" : "Enter the live ↓"; stage.appendChild(hint);
+      setTimeout(() => pv.classList.add("on"), 2600);
+      const onScroll = () => { const r = hero.getBoundingClientRect(), span = hero.offsetHeight - innerHeight; prog = Math.min(Math.max(-r.top / span, 0), 1); };
+      addEventListener("scroll", onScroll, { passive: true }); onScroll();
+      hero.addEventListener("click", () => { if (prog < 0.95) scrollTo({ top: hero.offsetTop + hero.offsetHeight - innerHeight, behavior: "smooth" }); });
+    }
     let W = 0, H = 0, CX = 0, CY = 0, R0 = 100, P = [], visible = true, tt = 0, surge = 0, nextSurge = 4;
     const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
     const N = () => (innerWidth < 700 ? 4200 : 10000);
@@ -360,8 +376,8 @@
     };
     const size = () => {
       const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
-      CX = W / 2; CY = H / 2; R0 = Math.min(W, H) * (W < 700 ? 0.2 : 0.17);
-      title.style.fontSize = Math.round(R0 * 0.42) + "px";
+      CX = W / 2; CY = H / 2; R0 = R0base = Math.min(W, H) * (W < 700 ? 0.2 : 0.17);
+      title.style.fontSize = Math.round(R0base * 0.42) + "px";
       P = Array.from({ length: N() }, () => spawn({}, true));
     };
     size(); addEventListener("resize", () => { clearTimeout(size.t); size.t = setTimeout(size, 200); });
@@ -374,6 +390,14 @@
       if (visible) {
         tt += 1 / 60; if (tt > nextSurge) { surge = 0.7; nextSurge = tt + 4 + Math.random() * 5; }  // spontaneous energy pulses
         surge *= 0.965;
+        let fade = 1;
+        if (PORTAL) {
+          const e = prog < .5 ? 4 * prog ** 3 : 1 - (-2 * prog + 2) ** 3 / 2;           // ease in-out
+          R0 = R0base + (Math.hypot(W, H) / 2 + 40 - R0base) * e; fade = 1 - e;
+          pv.style.clipPath = `circle(${R0}px at 50% 50%)`; pv.style.opacity = pv.classList.contains("on") ? 0.45 + 0.55 * e : 0;
+          title.style.opacity = sub.style.opacity = Math.max(0, 1 - e * 2.5);
+          hero.querySelector(".portal-hint").style.opacity = Math.max(0, 1 - e * 4);
+        }
         cx.fillStyle = "rgba(10,10,10,0.42)"; cx.fillRect(0, 0, W, H);   // short trails
         const MR = Math.min(W, H) * 0.22, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 50);
         const breath = 1 + Math.sin(tt * 1.3) * 0.25;
@@ -391,10 +415,11 @@
           if (nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
           const life = 1 - (nd - R0) / (p.max - R0);
           const v = Math.min(Math.hypot(p.vx, p.vy) / 6, 1);
-          cx.fillStyle = p.red || v > 0.6 ? `rgba(225,37,27,${0.5 + life * 0.5})` : `rgba(239,238,233,${0.15 + life * 0.85})`;
+          cx.fillStyle = p.red || v > 0.6 ? `rgba(225,37,27,${(0.5 + life * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + life * 0.85) * fade})`;
           cx.fillRect(p.x, p.y, p.s, p.s);
         }
-        cx.fillStyle = "#0a0a0a"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill();   // the black hole
+        if (PORTAL) { cx.save(); cx.globalCompositeOperation = "destination-out"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill(); cx.restore(); }   // window onto the live
+        else { cx.fillStyle = "#0a0a0a"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill(); }   // the black hole
         mouse.vx *= 0.85; mouse.vy *= 0.85;
       }
       requestAnimationFrame(frame);
