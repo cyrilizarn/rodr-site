@@ -72,6 +72,7 @@
         <canvas aria-hidden="true"></canvas>
         <p class="hero-sub">Electronica · IDM · Live A/V</p>
         <h1 class="hero-title" aria-label="ROD-R"><span class="hole-cross" aria-hidden="true"></span></h1>
+        <p class="hero-type cond" aria-hidden="true">ROD-R<br>Wandering<br>Sounds</p>
 
       </section>
       <section class="reel-sec" aria-label="Live">

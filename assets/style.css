@@ -306,3 +306,5 @@ footer a:hover { color: var(--red); }
 .hole-cross::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-.5px); }
 .reel-pin { top: calc(50svh - min(80vw * 9 / 16, 76svh) / 2); }
 .hero .hero-title { line-height: 0; padding: 0; font-size: 0 !important; }
+.hero-type { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; font-size: clamp(64px, 12.5vw, 230px); line-height: .86; letter-spacing: -0.02em; white-space: nowrap; pointer-events: none; user-select: none; }
+.hero .hole-cross { display: none; }
