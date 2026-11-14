@@ -170,7 +170,7 @@
     if (turb && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let sd = 1; setInterval(() => { sd = (sd % 7) + 1; turb.setAttribute("seed", sd); }, 140); }
 
     // cursor trail made of grain, over the whole site
-    if (!matchMedia("(prefers-reduced-motion: reduce)").matches && matchMedia("(pointer: fine)").matches) {
+    if (false) {   // cursor trail disabled
       const tc = document.createElement("canvas"); tc.className = "trail"; document.body.appendChild(tc);
       const tx = tc.getContext("2d"); let TW, TH, G = [], lx = null, ly = null;
       const ts = () => { const d = Math.min(devicePixelRatio || 1, 2); TW = innerWidth; TH = innerHeight; tc.width = TW * d; tc.height = TH * d; tx.setTransform(d, 0, 0, d, 0, 0); };
