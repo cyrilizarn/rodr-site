@@ -20,7 +20,7 @@ img { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 
 /* grain */
-body::after { content: ""; position: fixed; inset: -50%; pointer-events: none; z-index: 300; opacity: .07;
+body::after { content: ""; position: fixed; inset: -50%; pointer-events: none; z-index: 300; opacity: .13;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   animation: grain 1s steps(5) infinite; }
 @keyframes grain { 0%{transform:translate(0,0)} 20%{transform:translate(-4%,3%)} 40%{transform:translate(3%,-2%)} 60%{transform:translate(-2%,-4%)} 80%{transform:translate(4%,2%)} 100%{transform:translate(0,0)} }
@@ -235,3 +235,6 @@ footer a:hover { color: var(--red); }
   html { scroll-behavior: auto; } body::after, .ticker div, .hero-bg { animation: none; }
   .rv, .sec-head h2 span, .hero-title span { opacity: 1; transform: none; animation: none; transition: none; }
 }
+
+/* grain qui ronge la typo (inspiré d'inherited.band) */
+.cond, .nav .logo, .rel-row .t, .cover.ph strong, .date .d, .date .v, .facts strong, .dl a, .news h3, .bigmail { filter: url(#grain-type); }

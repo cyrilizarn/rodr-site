@@ -132,6 +132,12 @@
       <span class="mono grey">© ${new Date().getFullYear()} ROD-R — ${t("rights")}</span>
       <div class="foot-logo cond" aria-hidden="true">ROD-R</div>
     </footer>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="grain-type" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="1" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  6 0 0 0 -1.75" result="holes"/>
+      <feComposite in="rough" in2="holes" operator="in"/>
+    </filter></svg>
     <div class="preview" aria-hidden="true"></div>
     <div class="lightbox"><img alt=""></div>`;
 
@@ -150,6 +156,10 @@
       const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); } }), { threshold: .15 });
       document.querySelectorAll(".rv, .sec-head").forEach(el => ro.observe(el));
     } else document.querySelectorAll(".rv, .sec-head").forEach(el => el.classList.add("in"));
+
+    // grain "boil" on the titles: reseed the noise a few times per second
+    const turb = document.querySelector("#grain-type feTurbulence");
+    if (turb && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let sd = 1; setInterval(() => { sd = (sd % 7) + 1; turb.setAttribute("seed", sd); }, 140); }
 
     // releases accordion + cursor cover preview
     const pv = document.querySelector(".preview");
