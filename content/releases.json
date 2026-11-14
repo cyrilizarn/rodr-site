@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "title": "Friction Field (Louise ROAM Rework)",
+      "type": "Single",
+      "year": "2026",
+      "label": "",
+      "cover": "",
+      "text_fr": "Louise ROAM retravaille Friction Field, extrait d'Alterity.",
+      "text_en": "Louise ROAM reworks Friction Field, taken from Alterity.",
+      "tracks": ["Friction Field (Louise ROAM Rework)"],
+      "links": [{ "name": "Écouter", "url": "https://kuronekomedia.lnk.to/FrictionField-Rework" }]
+    },
+    {
+      "title": "Alterity",
+      "type": "EP",
+      "year": "2025",
+      "label": "Reliefs Records",
+      "cover": "/images/cover-alterity.jpg",
+      "text_fr": "Six chapitres qui racontent une rencontre et une transformation. Prolongé par Otherness, court-métrage de science-fiction réalisé par Jon Jonderko.",
+      "text_en": "Six chapters telling the story of an encounter and a transformation. Extended by Otherness, a science-fiction short film directed by Jon Jonderko.",
+      "tracks": ["Unknown", "Friction Field", "Liminal", "Elsewhere", "Alterity", "Last Pulse"],
+      "links": [{ "name": "Spotify", "url": "https://open.spotify.com/intl-fr/album/1jhyc9FA6PRGgD4Of3zECS" }]
+    },
+    {
+      "title": "Prémices Reworks",
+      "type": "EP",
+      "year": "2024",
+      "label": "",
+      "cover": "/images/cover-premices-reworks.jpg",
+      "text_fr": "Prémices réinterprété par Odalie (Mesh), CCTemple (IOT Records) et Paul CH.",
+      "text_en": "Prémices reimagined by Odalie (Mesh), CCTemple (IOT Records) and Paul CH.",
+      "tracks": ["Errance (Odalie Rework)", "Processing (CCTemple Rework)", "Ellipse (Paul CH Rework)"],
+      "links": []
+    },
+    {
+      "title": "Prémices",
+      "type": "EP",
+      "year": "2023",
+      "label": "",
+      "cover": "/images/cover-premices.jpg",
+      "text_fr": "Premier EP, entre ambient, IDM et electronica : un périple cosmique en cinq titres.",
+      "text_en": "Debut EP, between ambient, IDM and electronica: a cosmic journey in five tracks.",
+      "tracks": ["Prémices", "Processing", "Ellipse", "Gradient", "Errance"],
+      "links": []
+    }
+  ]
+}

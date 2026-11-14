@@ -1,0 +1,8 @@
+{
+  "items": [
+    { "role_fr": "Contact & booking", "role_en": "Contact & booking", "name": "Cyril Izarn", "email": "hello@rod-r.net" },
+    { "role_fr": "Management", "role_en": "Management", "name": "Mathieu Belchit", "email": "mathieubelchit@gmail.com" },
+    { "role_fr": "Relations presse", "role_en": "Press", "name": "La Mission — Camille", "email": "camille@la-mission.com" },
+    { "role_fr": "Label", "role_en": "Label", "name": "Reliefs Records", "email": "reliefs.records@gmail.com" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "items": [
+    { "image": "/images/live-red.jpg", "caption": "Live A/V" },
+    { "image": "/images/hero-portrait.jpg", "caption": "" },
+    { "image": "/images/live-red-2.jpg", "caption": "" },
+    { "image": "/images/live-bw-portrait.jpg", "caption": "" },
+    { "image": "/images/live-typo.jpg", "caption": "" },
+    { "image": "/images/live-crowd-bw.jpg", "caption": "" },
+    { "image": "/images/live-machines.jpg", "caption": "" },
+    { "image": "/images/live-logo-bw.jpg", "caption": "" },
+    { "image": "/images/otherness-still.jpg", "caption": "Otherness — Jon Jonderko" },
+    { "image": "/images/poster-otherness.jpg", "caption": "Otherness — affiche" }
+  ]
+}

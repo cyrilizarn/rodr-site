@@ -1,0 +1,159 @@
+# Configuration Pages CMS (https://pagescms.org) — interface d'édition gratuite du site ROD-R
+media:
+  input: images
+  output: /images
+
+content:
+  - name: news
+    label: News
+    type: file
+    path: content/news.json
+    fields:
+      - name: items
+        label: Articles
+        type: object
+        list: true
+        fields:
+          - { name: date, label: Date, type: date }
+          - { name: title_fr, label: Titre (FR), type: string }
+          - { name: title_en, label: Titre (EN), type: string }
+          - { name: text_fr, label: Texte (FR), type: text }
+          - { name: text_en, label: Texte (EN), type: text }
+          - { name: image, label: Image, type: image }
+          - { name: link, label: Lien (optionnel), type: string }
+
+  - name: dates
+    label: Dates
+    type: file
+    path: content/dates.json
+    fields:
+      - name: upcoming
+        label: Prochaines dates
+        type: object
+        list: true
+        fields:
+          - { name: date, label: Date, type: date }
+          - { name: venue, label: Lieu / événement, type: string }
+          - { name: city, label: Ville, type: string }
+          - { name: info, label: "Infos (avec…)", type: string }
+          - { name: ticket_url, label: Lien billetterie, type: string }
+      - name: past
+        label: Dates passées
+        type: object
+        list: true
+        fields:
+          - { name: year, label: Année, type: string }
+          - { name: venue, label: Lieu, type: string }
+          - { name: city, label: Ville, type: string }
+
+  - name: releases
+    label: Discographie
+    type: file
+    path: content/releases.json
+    fields:
+      - name: items
+        label: Sorties (la première = dernière sortie, mise en avant sur l'accueil)
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Titre, type: string }
+          - { name: type, label: Type, type: select, options: { values: [Single, EP, Album, Remix] } }
+          - { name: year, label: Année, type: string }
+          - { name: label, label: Label, type: string }
+          - { name: cover, label: Pochette, type: image }
+          - { name: text_fr, label: Info (FR), type: text }
+          - { name: text_en, label: Info (EN), type: text }
+          - { name: tracks, label: Tracklist, type: string, list: true }
+          - name: links
+            label: Liens d'écoute
+            type: object
+            list: true
+            fields:
+              - { name: name, label: Plateforme, type: string }
+              - { name: url, label: URL, type: string }
+
+  - name: videos
+    label: Vidéos
+    type: file
+    path: content/videos.json
+    fields:
+      - name: items
+        label: Vidéos (la première apparaît sur l'accueil)
+        type: object
+        list: true
+        fields:
+          - { name: title, label: Titre, type: string }
+          - { name: youtube, label: Lien YouTube, type: string }
+
+  - name: gallery
+    label: Galerie
+    type: file
+    path: content/gallery.json
+    fields:
+      - name: items
+        label: Photos
+        type: object
+        list: true
+        fields:
+          - { name: image, label: Photo, type: image }
+          - { name: caption, label: Légende / crédit, type: string }
+
+  - name: bio
+    label: Bio & presskit
+    type: file
+    path: content/bio.json
+    fields:
+      - { name: portrait, label: Portrait, type: image }
+      - { name: bio_fr, label: Bio (FR), type: text }
+      - { name: bio_en, label: Bio (EN), type: text }
+      - { name: press, label: Presse (noms), type: string, list: true }
+      - name: downloads
+        label: Téléchargements EPK
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Nom, type: string }
+          - { name: file, label: Fichier, type: file, options: { input: files, output: /files } }
+
+  - name: contact
+    label: Contacts
+    type: file
+    path: content/contact.json
+    fields:
+      - name: items
+        label: Contacts
+        type: object
+        list: true
+        fields:
+          - { name: role_fr, label: Rôle (FR), type: string }
+          - { name: role_en, label: Rôle (EN), type: string }
+          - { name: name, label: Nom, type: string }
+          - { name: email, label: E-mail, type: string }
+
+  - name: site
+    label: Réglages du site
+    type: file
+    path: content/site.json
+    fields:
+      - { name: title, label: Titre, type: string }
+      - { name: tagline_fr, label: Accroche (FR), type: string }
+      - { name: tagline_en, label: Accroche (EN), type: string }
+      - { name: hero_image, label: Image d'accueil, type: image }
+      - { name: email, label: E-mail de contact, type: string }
+      - { name: bandcamp_url, label: Lien Bandcamp (store), type: string }
+      - { name: linktree_url, label: Lien Linktree, type: string }
+      - { name: newsletter_url, label: "URL du formulaire newsletter (Brevo)", type: string }
+      - name: streaming
+        label: Liens streaming (accueil)
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Nom, type: string }
+          - { name: url, label: URL, type: string }
+      - name: socials
+        label: Réseaux sociaux
+        type: object
+        list: true
+        fields:
+          - { name: name, label: Nom, type: string }
+          - { name: url, label: URL, type: string }

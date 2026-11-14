@@ -1,0 +1,19 @@
+{
+  "title": "ROD-R",
+  "tagline_fr": "Electronica granuleuse et immersive. Live audiovisuel.",
+  "tagline_en": "Grainy, immersive electronica. Audiovisual live.",
+  "hero_image": "/images/live-red.jpg",
+  "email": "hello@rod-r.net",
+  "bandcamp_url": "",
+  "linktree_url": "https://linktr.ee/rodr_music",
+  "newsletter_url": "",
+  "streaming": [
+    { "name": "Spotify", "url": "https://open.spotify.com/intl-fr/album/1jhyc9FA6PRGgD4Of3zECS" },
+    { "name": "Toutes plateformes", "url": "https://kuronekomedia.lnk.to/FrictionField-Rework" }
+  ],
+  "socials": [
+    { "name": "Instagram", "url": "https://instagram.com/rodr_music" },
+    { "name": "Facebook", "url": "https://facebook.com/Rodr.music" },
+    { "name": "Linktree", "url": "https://linktr.ee/rodr_music" }
+  ]
+}

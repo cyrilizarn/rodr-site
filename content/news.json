@@ -1,0 +1,31 @@
+{
+  "items": [
+    {
+      "date": "2026-11-06",
+      "title_fr": "Friction Field — Louise ROAM Rework est sorti",
+      "title_en": "Friction Field — Louise ROAM Rework is out",
+      "text_fr": "Louise ROAM signe un rework de Friction Field, extrait d'Alterity. Disponible sur toutes les plateformes.",
+      "text_en": "Louise ROAM delivers a rework of Friction Field, taken from Alterity. Out now on all platforms.",
+      "image": "/images/live-typo.jpg",
+      "link": "https://kuronekomedia.lnk.to/FrictionField-Rework"
+    },
+    {
+      "date": "2026-11-01",
+      "title_fr": "Lyon et Quimper en février 2027",
+      "title_en": "Lyon and Quimper in February 2027",
+      "text_fr": "Le live A/V passe par Le Lavoir Public à Lyon le 20 février, puis par le Festival Pulsion à Quimper le 26 février.",
+      "text_en": "The A/V live show stops at Le Lavoir Public in Lyon on 20 February, then at Festival Pulsion in Quimper on 26 February.",
+      "image": "/images/live-logo-bw.jpg",
+      "link": ""
+    },
+    {
+      "date": "2026-02-21",
+      "title_fr": "La Boule Noire complète",
+      "title_en": "Sold out at La Boule Noire",
+      "text_fr": "Soirée InFiné × Reliefs à Paris, aux côtés d'Abran et Frieder Nagel. La captation du live est en ligne.",
+      "text_en": "InFiné × Reliefs night in Paris, alongside Abran and Frieder Nagel. The live recording is online.",
+      "image": "/images/live-bw-portrait.jpg",
+      "link": "https://www.youtube.com/watch?v=SXqtCKVxDpY"
+    }
+  ]
+}

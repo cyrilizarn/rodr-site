@@ -1,0 +1,16 @@
+{
+  "upcoming": [
+    { "date": "2027-02-20", "venue": "Le Lavoir Public", "city": "Lyon", "info": "avec Aust", "ticket_url": "" },
+    { "date": "2027-02-26", "venue": "Festival Pulsion", "city": "Quimper", "info": "avec Kangding Ray, ScanX, Nomenklatur", "ticket_url": "" }
+  ],
+  "past": [
+    { "year": "2026", "venue": "La Boule Noire — InFiné × Reliefs (complet)", "city": "Paris" },
+    { "year": "2026", "venue": "Pop-Up! — release party Alterity (complet)", "city": "Paris" },
+    { "year": "2026", "venue": "Lo Bolegason — FOMAC", "city": "Castres" },
+    { "year": "2025", "venue": "Le Rex — 1re partie de Mokado", "city": "Toulouse" },
+    { "year": "2025", "venue": "IPN — release party Alterity", "city": "Toulouse" },
+    { "year": "2025", "venue": "Siestes Électroniques — Musée Goya", "city": "Castres" },
+    { "year": "2025", "venue": "Le Manoir", "city": "Albi" },
+    { "year": "2025", "venue": "Le Dada", "city": "Toulouse" }
+  ]
+}
