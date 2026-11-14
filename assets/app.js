@@ -141,6 +141,7 @@
     const nav = document.querySelector(".nav"), ul = nav.querySelector("ul"), burger = nav.querySelector(".burger");
     burger.onclick = () => { const o = ul.classList.toggle("open"); burger.textContent = o ? t("close") : t("menu"); burger.setAttribute("aria-expanded", o); };
     ul.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { ul.classList.remove("open"); burger.textContent = t("menu"); }));
+    addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
     nav.querySelector(".lang").onclick = () => { set("lang", LANG === "fr" ? "en" : "fr"); const u = new URL(location); u.searchParams.delete("lang"); location.href = u; };
 
     // active section + reveal
@@ -183,10 +184,13 @@
 
     // fit giant titles to the viewport width
     const fit = () => document.querySelectorAll(".hero-title, .foot-logo").forEach(el => {
-      el.style.fontSize = "100px"; el.style.display = "inline-block"; el.style.paddingLeft = el.style.paddingRight = "0";
-      const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--pad")) || 24;
-      const w = el.scrollWidth; el.style.display = ""; el.style.paddingLeft = el.style.paddingRight = "";
-      el.style.fontSize = Math.floor(100 * (innerWidth - pad * 2) / w) + "px";
+      const host = el.classList.contains("hero-title") ? el : el.parentElement;
+      const cs = getComputedStyle(host), pad = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const avail = (el.classList.contains("hero-title") ? innerWidth : host.clientWidth) - pad;
+      const probe = document.createElement("span"); probe.className = "cond"; probe.textContent = "ROD-R";
+      probe.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-size:100px";
+      document.body.appendChild(probe); const w = probe.getBoundingClientRect().width; probe.remove();
+      el.style.fontSize = Math.floor(100 * avail / w * 0.995) + "px";
     });
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
