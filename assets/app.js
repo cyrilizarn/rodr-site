@@ -60,7 +60,7 @@
     document.body.innerHTML = `
     <header class="nav">
       <a class="logo corner tl" href="#top">ROD<i>-</i>R</a>
-      <a class="corner tc mid" href="mailto:${esc(site.email)}">Booking</a>
+      <span class="corner tc cross" aria-hidden="true"></span>
       <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
       <button class="burger corner tr" aria-expanded="false">${t("menu")}</button>
       <div class="corner bl socials">${(site.socials || []).map(s => `<a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)}</a>`).join("")}</div>
@@ -76,9 +76,7 @@
 
       </section>
       <section class="reel-sec" aria-label="Live">
-        <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div>
-          <button class="reel-sound" aria-pressed="false">${LANG === "fr" ? "Son" : "Sound"} <span>off</span></button></div>
-        <p class="reel-cap"><b>${esc((videos[0] || {}).title || "Live A/V — La Boule Noire, Paris")}</b></p></div>
+        <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div></div></div>
       </section>
       </div>
 
@@ -206,9 +204,6 @@
     new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); const id = reelIn.dataset.yt;
       reelIn.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&enablejsapi=1&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
       reelFrame = reelIn.querySelector("iframe"); setTimeout(() => reelIn.classList.add("on"), 2600); } }, { rootMargin: "400px" }).observe(reelSec);
-    const snd = reelSec.querySelector(".reel-sound");
-    snd.onclick = () => { if (!reelFrame) return; const on = snd.getAttribute("aria-pressed") !== "true"; snd.setAttribute("aria-pressed", on); snd.querySelector("span").textContent = on ? "on" : "off";
-      reelFrame.contentWindow.postMessage(JSON.stringify({ event: "command", func: on ? "unMute" : "mute", args: [] }), "*"); };
     const reelScroll = () => { const r = reelSec.getBoundingClientRect(); const k = Math.min(Math.max((innerHeight - r.top) / (innerHeight * 0.95), 0), 1); const e = 1 - Math.pow(1 - k, 3);
       reel.style.transform = `translateY(${(1 - e) * 160}px) scale(${0.86 + 0.14 * e})`; reel.style.opacity = 0.2 + 0.8 * e; };
     addEventListener("scroll", reelScroll, { passive: true }); reelScroll();

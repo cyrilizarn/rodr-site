@@ -300,3 +300,8 @@ footer a:hover { color: var(--red); }
 .reel-cap { width: min(80vw, calc(76svh * 16 / 9)); margin-top: 14px; font-size: 15px; color: var(--grey); }
 .reel-cap b { color: var(--white); }
 @media (max-width: 700px) { .reel, .reel-cap { width: calc(100vw - 32px); } .reel-pin { top: 30svh; } }
+.cross { top: 22px; width: 18px; height: 18px; pointer-events: none; }
+.cross::before, .cross::after { content: ""; position: absolute; background: var(--white); }
+.cross::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-.5px); }
+.cross::after { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-.5px); }
+.reel-pin { top: calc(50svh - min(80vw * 9 / 16, 76svh) / 2); }
