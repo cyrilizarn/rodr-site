@@ -382,12 +382,16 @@
       p.x = CX + Math.cos(a) * r; p.y = CY + Math.sin(a) * r;
       p.rim = Math.random() < 0.42;                     // slow grains keep the rim sharp
       const out = p.rim ? 0.1 + Math.random() * 0.35 : 5 + Math.random() * 7;   // others burst out fast
-      p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
+      const da = a + (Math.random() - 0.5) * (p.rim ? 1.2 : 0.75);   // random spread in direction
+      p.vx = Math.cos(da) * out; p.vy = Math.sin(da) * out;
       // irregular outer edge: slow angular modulation + per-grain randomness, so the halo is never a perfect circle
       const lobe = 1 + 0.32 * Math.sin(3 * a + tt * 0.4) + 0.18 * Math.sin(7 * a - tt * 0.9) + 0.1 * Math.sin(13 * a + tt * 1.7);
-      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : Math.min(R0 * (1.06 + Math.pow(Math.random(), 1.5) * 0.435 * lobe * (0.45 + Math.random() * 1.1)), Math.min(W, H) * 0.47);
+      // lifetime in frames (random), so grains fade out at scattered distances instead of on a circle
+      p.age = 0; p.ttl = p.rim ? 14 + Math.random() * 46 : 3 + Math.pow(Math.random(), 1.4) * 34 * lobe * (0.35 + Math.random() * 1.3);
+      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.25) : Math.min(W, H) * 0.49;
+      p.drag = p.rim ? 0.94 : 0.86 + Math.random() * 0.1;   // varied friction -> grains stop at different distances
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
-      if (fresh) { const k = Math.random(); const rr = R0 + (p.max - R0) * k; p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
+      if (fresh) { p.age = Math.random() * p.ttl; const rr = R0 * (1 + Math.random() * 0.12); p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
       return p;
     };
     const size = () => {
@@ -429,10 +433,11 @@
             const mx = p.x - mouse.x, my = p.y - mouse.y, m2 = mx * mx + my * my;
             if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (1.6 + ms * 0.09); p.vx += mx / m * f2 + my / m * f2 * 0.8; p.vy += my / m * f2 - mx / m * f2 * 0.8; }
           }
-          p.vx *= 0.94; p.vy *= 0.94; p.x += p.vx; p.y += p.vy;
+          p.vx *= p.drag || 0.94; p.vy *= p.drag || 0.94; p.x += p.vx; p.y += p.vy;
           const nd = Math.hypot(p.x - CX, p.y - CY);
-          if (nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
-          const life = 1 - (nd - R0) / (p.max - R0);
+          p.age++; p.vx += (Math.random() - 0.5) * 0.5; p.vy += (Math.random() - 0.5) * 0.5;   // jitter
+          if (p.age > p.ttl || nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
+          const life = Math.pow(1 - p.age / p.ttl, 0.8);
           const v = Math.min(Math.hypot(p.vx, p.vy) / 11, 1);
           cx.fillStyle = p.red || v > 0.7 ? `rgba(225,37,27,${(0.5 + life * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + life * 0.85) * fade})`;
           cx.fillRect(p.x, p.y, p.s, p.s);
