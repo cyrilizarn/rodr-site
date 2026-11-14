@@ -236,15 +236,56 @@
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
     if (qs.get("hero") === "video") {
-      // TEST: live video (La Boule Noire) as a fullscreen background
+      // TEST: live video (La Boule Noire) at 80%, grain title, mouse parallax
       const hero = document.querySelector(".hero"); hero.classList.add("video-mode");
       const id = ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY";
-      const wrap = document.createElement("div"); wrap.className = "hero-video";
-      wrap.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
-      hero.prepend(wrap);
-      const sound = document.createElement("button"); sound.className = "hero-sound"; sound.textContent = LANG === "fr" ? "Voir le live complet ↗" : "Watch the full live ↗";
-      sound.onclick = () => document.querySelector("#videos").scrollIntoView();
-      hero.appendChild(sound);
+      const box = document.createElement("div"); box.className = "hero-video";
+      box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&disablekb=1&fs=0&modestbranding=1&rel=0&playsinline=1&iv_load_policy=3&cc_load_policy=0&start=20" allow="autoplay; encrypted-media" title="ROD-R live" tabindex="-1"></iframe>`;
+      hero.prepend(box);
+      setTimeout(() => box.classList.add("on"), 2600);   // reveal after YouTube's loading UI has gone
+      const more = document.createElement("button"); more.className = "hero-sound"; more.textContent = LANG === "fr" ? "Voir le live complet ↗" : "Watch the full live ↗";
+      more.onclick = () => document.querySelector("#videos").scrollIntoView(); hero.appendChild(more);
+
+      // big title rebuilt from grain
+      const cv = hero.querySelector("canvas"), cx = cv.getContext("2d");
+      let W = 0, H = 0, P = [], visible = true;
+      const m = { x: -9999, y: -9999, nx: 0, ny: 0, vx: 0, vy: 0, on: false }, par = { x: 0, y: 0 };
+      const build = () => {
+        const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+        const fs = Math.min(W * 0.2, H * 0.36), off = document.createElement("canvas"); off.width = W; off.height = H;
+        const oc = off.getContext("2d"); oc.fillStyle = "#fff"; oc.textAlign = "center"; oc.textBaseline = "middle";
+        oc.font = `700 ${fs}px "Px Grotesk", "Helvetica Neue", Arial, sans-serif`; oc.fillText("ROD-R", W / 2, H / 2);
+        const data = oc.getImageData(0, 0, W, H).data, step = W < 700 ? 2 : 2; P = [];
+        for (let y = 0; y < H; y += step) for (let x = 0; x < W; x += step) {
+          if (data[(y * W + x) * 4 + 3] > 128 && Math.random() < 0.62) P.push({ hx: x, hy: y, x: x + (Math.random() - .5) * 400, y: y + (Math.random() - .5) * 400, vx: 0, vy: 0, k: .05 + Math.random() * .05, s: Math.random() < .85 ? 1.4 : 2.2 });
+        }
+        hero.querySelector(".hero-sub").style.top = `calc(50% + ${fs * 0.55}px)`;
+      };
+      (document.fonts ? document.fonts.load('700 100px "Px Grotesk"').catch(() => {}) : Promise.resolve()).then(build);
+      addEventListener("resize", () => { clearTimeout(build.t); build.t = setTimeout(build, 200); });
+      hero.addEventListener("pointermove", e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (m.on) { m.vx = x - m.x; m.vy = y - m.y; } m.x = x; m.y = y; m.on = true; m.nx = x / W - .5; m.ny = y / H - .5; });
+      hero.addEventListener("pointerleave", () => { m.on = false; m.x = m.y = -9999; m.nx = m.ny = 0; });
+      new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
+      const frame = () => {
+        if (visible) {
+          par.x += (m.nx - par.x) * .06; par.y += (m.ny - par.y) * .06;
+          box.style.transform = `translate(calc(-50% + ${par.x * -24}px), calc(-50% + ${par.y * -16}px))`;
+          const ox = par.x * 46, oy = par.y * 30;   // title moves the other way: depth
+          cx.clearRect(0, 0, W, H);
+          const R = Math.min(W, H) * .16, R2 = R * R, ms = Math.min(Math.hypot(m.vx, m.vy), 60);
+          for (const p of P) {
+            p.vx += (p.hx + ox - p.x) * p.k; p.vy += (p.hy + oy - p.y) * p.k;
+            if (m.on) { const dx = p.x - m.x, dy = p.y - m.y, d2 = dx * dx + dy * dy; if (d2 < R2) { const dd = Math.sqrt(d2) || 1, f = 1 - dd / R, f2 = f * f * (2.6 + ms * .12); p.vx += dx / dd * f2 - dy / dd * f2 * .6; p.vy += dy / dd * f2 + dx / dd * f2 * .6; } }
+            p.vx *= .84; p.vy *= .84; p.x += p.vx; p.y += p.vy;
+            const v = Math.hypot(p.vx, p.vy);
+            cx.fillStyle = v > 4 ? "rgba(225,37,27,.95)" : "rgba(239,238,233,.95)";
+            cx.fillRect(p.x, p.y, p.s, p.s);
+          }
+          m.vx *= .8; m.vy *= .8;
+        }
+        requestAnimationFrame(frame);
+      };
+      frame();
     } else if (qs.get("hero") === "photo") {
       // TEST: live photo rebuilt from interactive grain
       const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d");

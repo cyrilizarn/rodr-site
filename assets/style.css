@@ -265,11 +265,12 @@ footer a:hover { color: var(--red); }
 .trail { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 250; }
 .hero.photo-mode .hero-title { left: var(--pad); top: auto; bottom: 90px; transform: none; font-size: clamp(64px, 11vw, 190px) !important; }
 .hero.photo-mode .hero-sub { left: var(--pad); top: auto; bottom: 70px; transform: none; }
-.hero.video-mode canvas { display: none; }
-.hero-video { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: #000; }
-.hero-video iframe { position: absolute; left: 50%; top: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.78vh; transform: translate(-50%, -50%) scale(1.15); border: 0; filter: grayscale(.2) contrast(1.1); }
-.hero-video::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(10,10,10,.15) 0%, rgba(10,10,10,.75) 100%); }
-.hero.video-mode .hero-title { font-size: clamp(80px, 16vw, 280px) !important; }
-.hero.video-mode .hero-sub { top: calc(50% + clamp(54px, 9vw, 160px)); color: var(--white); }
-.hero-sound { position: absolute; z-index: 3; left: 50%; bottom: 84px; transform: translateX(-50%); font-size: 15px; font-weight: 700; padding: 12px 20px; border: 1px solid var(--edge); border-radius: 999px; background: rgba(10,10,10,.35); backdrop-filter: blur(6px); }
+.hero.video-mode .hero-title { opacity: 0; }
+.hero.video-mode canvas { z-index: 2; pointer-events: none; }
+.hero.video-mode { cursor: crosshair; }
+.hero-video { position: absolute; left: 50%; top: 50%; width: min(80vw, calc(80svh * 16 / 9)); aspect-ratio: 16 / 9; transform: translate(-50%, -50%); overflow: hidden; pointer-events: none; background: #000; opacity: 0; transition: opacity 1.4s ease; will-change: transform; }
+.hero-video.on { opacity: 1; }
+.hero-video iframe { position: absolute; left: 50%; top: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%) scale(1.22); border: 0; }
+.hero.video-mode .hero-sub { z-index: 3; color: var(--white); text-shadow: 0 0 18px rgba(0,0,0,.6); }
+.hero-sound { position: absolute; z-index: 3; left: 50%; bottom: 64px; transform: translateX(-50%); font-size: 15px; font-weight: 700; padding: 12px 20px; border: 1px solid var(--edge); border-radius: 999px; background: rgba(10,10,10,.35); backdrop-filter: blur(6px); }
 .hero-sound:hover { background: var(--white); color: var(--black); }
