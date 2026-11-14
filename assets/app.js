@@ -194,33 +194,71 @@
     });
     fit(); (document.fonts && document.fonts.ready || Promise.resolve()).then(fit); addEventListener("resize", fit);
 
-    // hero canvas: oscilloscope lines reacting to the pointer
-    const cv = document.querySelector(".hero canvas"), cx = cv.getContext("2d");
-    let W, H, mx = .5, my = .5, tt = 0, visible = true;
-    const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0); };
-    size(); addEventListener("resize", size);
-    document.querySelector(".hero").addEventListener("pointermove", e => { mx = e.clientX / W; my = e.clientY / H; });
-    new IntersectionObserver(es => visible = es[0].isIntersecting).observe(cv);
-    const draw = () => {
-      if (visible) {
-        cx.clearRect(0, 0, W, H);
-        const lines = 7, base = H * .42;
-        for (let l = 0; l < lines; l++) {
-          cx.beginPath();
-          const amp = (18 + l * 9) * (0.4 + my * 1.4), f = 0.004 + l * 0.0011 + mx * 0.004, ph = tt * (0.6 + l * 0.15);
-          for (let x = 0; x <= W; x += 4) {
-            const env = Math.sin((x / W) * Math.PI);
-            const y = base + (l - lines / 2) * 14 + Math.sin(x * f + ph) * amp * env + Math.sin(x * f * 3.1 - ph * 1.7) * amp * .25 * env;
-            x ? cx.lineTo(x, y) : cx.moveTo(x, y);
-          }
-          cx.strokeStyle = l === 3 ? "rgba(225,37,27,.95)" : `rgba(239,238,233,${0.08 + l * 0.025})`;
-          cx.lineWidth = l === 3 ? 1.6 : 1;
-          cx.stroke();
+    // hero: the photo's white grain halo rebuilt as particles that react to the pointer
+    const hero = document.querySelector(".hero"), cv = hero.querySelector("canvas"), cx = cv.getContext("2d", { alpha: true });
+    let W = 0, H = 0, DPR = 1, P = [], mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false }, visible = true, pulse = null;
+    const img = new Image();
+    const build = () => {
+      DPR = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = W * DPR; cv.height = H * DPR; cx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      if (!img.complete || !img.naturalWidth) return;
+      // map image like background-size: cover; background-position: center 40%
+      const s = Math.max(W / img.naturalWidth, H / img.naturalHeight), iw = img.naturalWidth * s, ih = img.naturalHeight * s;
+      const ox = (W - iw) / 2, oy = (H - ih) * 0.4;
+      const step = W < 700 ? 4 : 3, gw = Math.ceil(W / step), gh = Math.ceil(H / step);
+      const off = document.createElement("canvas"); off.width = gw; off.height = gh;
+      const oc = off.getContext("2d"); oc.drawImage(img, ox / step, oy / step, iw / step, ih / step);
+      let data; try { data = oc.getImageData(0, 0, gw, gh).data; } catch (e) { return; }
+      const max = W < 700 ? 5000 : 14000; P = [];
+      for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+        const i = (y * gw + x) * 4, lum = (0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2]) / 255;
+        if (Math.random() < Math.pow(lum, 2.2) * 1.05) {
+          const hx = x * step + Math.random() * step, hy = y * step + Math.random() * step;
+          P.push({ hx, hy, x: hx, y: hy, vx: 0, vy: 0, a: 0.35 + lum * 0.65, s: Math.random() < 0.85 ? 1 : 1.6, r: Math.random() < 0.035, k: 0.02 + Math.random() * 0.03 });
         }
-        if (!reduce) tt += 0.016;
       }
-      requestAnimationFrame(draw);
+      if (P.length > max) { P.sort(() => Math.random() - 0.5); P.length = max; }
+      // start scattered, then gather (intro)
+      P.forEach(p => { const a = Math.random() * Math.PI * 2, d = Math.max(W, H) * (0.3 + Math.random() * 0.7); p.x = W / 2 + Math.cos(a) * d; p.y = H * 0.45 + Math.sin(a) * d; });
     };
-    draw();
+    img.onload = build; addEventListener("resize", () => { clearTimeout(build.t); build.t = setTimeout(build, 200); });
+    const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; mouse.x = x; mouse.y = y; mouse.on = true; };
+    hero.addEventListener("pointermove", setMouse);
+    hero.addEventListener("pointerdown", e => { setMouse(e); pulse = { x: mouse.x, y: mouse.y, t: 0 }; });
+    hero.addEventListener("pointerleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
+    new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
+    let tt = 0;
+    const frame = () => {
+      if (visible && P.length) {
+        cx.clearRect(0, 0, W, H);
+        const R = Math.min(W, H) * (W < 700 ? 0.32 : 0.24), R2 = R * R, speed = Math.min(Math.hypot(mouse.vx, mouse.vy), 60);
+        if (pulse) pulse.t += 18;
+        tt += 0.01;
+        for (const p of P) {
+          // spring home + slow breathing
+          const bx = p.hx + Math.sin(tt + p.hy * 0.02) * 1.2, by = p.hy + Math.cos(tt * 0.8 + p.hx * 0.02) * 1.2;
+          p.vx += (bx - p.x) * p.k; p.vy += (by - p.y) * p.k;
+          if (mouse.on) {
+            const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+            if (d2 < R2) {
+              const d = Math.sqrt(d2) || 1, f = (1 - d / R); const f2 = f * f * (3 + speed * 0.1);
+              p.vx += (dx / d) * f2 - (dy / d) * f2 * 0.9; // push out + swirl (black-hole lensing)
+              p.vy += (dy / d) * f2 + (dx / d) * f2 * 0.9;
+            }
+          }
+          if (pulse) { const dx = p.x - pulse.x, dy = p.y - pulse.y, d = Math.hypot(dx, dy) || 1, band = Math.abs(d - pulse.t); if (band < 40) { const f = (1 - band / 40) * 6; p.vx += dx / d * f; p.vy += dy / d * f; } }
+          p.vx *= 0.86; p.vy *= 0.86; p.x += p.vx; p.y += p.vy;
+          const v = Math.min(Math.hypot(p.vx, p.vy) / 8, 1);
+          cx.fillStyle = p.r || v > 0.55 ? `rgba(225,37,27,${0.55 + v * 0.45})` : `rgba(239,238,233,${p.a})`;
+          cx.fillRect(p.x, p.y, p.s, p.s);
+        }
+        if (pulse && pulse.t > Math.max(W, H)) pulse = null;
+        mouse.vx *= 0.8; mouse.vy *= 0.8;
+      }
+      requestAnimationFrame(frame);
+    };
+    if (reduce) { img.onload = () => { build(); P.forEach(p => { p.x = p.hx; p.y = p.hy; }); cx.clearRect(0, 0, W, H); P.forEach(p => { cx.fillStyle = `rgba(239,238,233,${p.a})`; cx.fillRect(p.x, p.y, p.s, p.s); }); }; }
+    else frame();
+    img.src = site.hero_image;
   })();
 })();
