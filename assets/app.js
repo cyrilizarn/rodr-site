@@ -59,19 +59,22 @@
 
     document.body.innerHTML = `
     <header class="nav">
-      <a class="logo" href="#top">ROD<i>-</i>R</a>
-      <ul>${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}><b>↗</b>${t("store")}</a></li></ul>
-      <button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button>
-      <button class="burger" aria-expanded="false">${t("menu")}</button>
+      <a class="logo corner tl" href="#top">ROD<i>-</i>R</a>
+      <a class="corner tc mid" href="mailto:${esc(site.email)}">Booking</a>
+      <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
+      <button class="burger corner tr" aria-expanded="false">${t("menu")}</button>
+      <div class="corner bl socials">${(site.socials || []).map(s => `<a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)}</a>`).join("")}</div>
+      <div class="corner br"><span class="where"><b>01</b> / ${String(SECTIONS.length).padStart(2, "0")}</span><button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button></div>
     </header>
 
     <main id="top">
       <section class="hero">
         <canvas aria-hidden="true"></canvas>
-        <div class="hero-top"><span class="mono">Electronica · IDM · Live A/V</span><span class="mono grey">${esc(L(site, "tagline"))}</span></div>
+        <p class="hero-sub">Electronica · IDM · Live A/V</p>
         <h1 class="hero-title cond">${split("ROD-R")}</h1>
-        <div class="ticker"><div>${tick}${tick}</div></div>
+
       </section>
+      <div class="ticker"><div>${tick}${tick}</div></div>
 
       <section class="sec" id="musique">${head("musique", `${releases.length} ${t("releases")}`)}
         <div class="rels">${releases.map((r, i) => `<div class="rel${i === 0 ? " open" : ""}">
@@ -145,13 +148,12 @@
     const nav = document.querySelector(".nav"), ul = nav.querySelector("ul"), burger = nav.querySelector(".burger");
     burger.onclick = () => { const o = ul.classList.toggle("open"); burger.textContent = o ? t("close") : t("menu"); burger.setAttribute("aria-expanded", o); };
     ul.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { ul.classList.remove("open"); burger.textContent = t("menu"); }));
-    addEventListener("scroll", () => nav.classList.toggle("solid", scrollY > 40), { passive: true });
     nav.querySelector(".lang").onclick = () => { set("lang", LANG === "fr" ? "en" : "fr"); const u = new URL(location); u.searchParams.delete("lang"); location.href = u; };
 
     // active section + reveal
     const links = [...ul.querySelectorAll("a[data-s]")];
     if ("IntersectionObserver" in window) {
-      const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.dataset.s === e.target.id)); }), { rootMargin: "-45% 0px -50% 0px" });
+      const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.toggle("on", a.dataset.s === e.target.id)); const w = nav.querySelector(".where b"); if (w) w.textContent = num(e.target.id); } }), { rootMargin: "-45% 0px -50% 0px" });
       document.querySelectorAll("section.sec").forEach(s => so.observe(s));
       const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); } }), { threshold: .15 });
       document.querySelectorAll(".rv, .sec-head").forEach(el => ro.observe(el));
