@@ -60,7 +60,6 @@
     document.body.innerHTML = `
     <header class="nav">
       <a class="logo corner tl" href="#top">ROD<i>-</i>R</a>
-      <span class="corner tc cross" aria-hidden="true"></span>
       <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
       <button class="burger corner tr" aria-expanded="false">${t("menu")}</button>
       <div class="corner bl socials">${(site.socials || []).map(s => `<a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)}</a>`).join("")}</div>
@@ -72,7 +71,7 @@
       <section class="hero">
         <canvas aria-hidden="true"></canvas>
         <p class="hero-sub">Electronica · IDM · Live A/V</p>
-        <h1 class="hero-title cond" aria-label="ROD-R"><span class="glyph">R</span></h1>
+        <h1 class="hero-title" aria-label="ROD-R"><span class="hole-cross" aria-hidden="true"></span></h1>
 
       </section>
       <section class="reel-sec" aria-label="Live">
@@ -397,7 +396,7 @@
     size(); addEventListener("resize", () => { clearTimeout(size.t); size.t = setTimeout(size, 200); });
     // red glyphs flickering very fast at the centre of the hole
     const GL = "ROD-R0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@*+=/<>?!", gEl = title.querySelector(".glyph");
-    if (gEl && !reduce) setInterval(() => { gEl.textContent = GL[(Math.random() * GL.length) | 0]; }, 45);
+    if (gEl && !reduce && false) setInterval(() => { gEl.textContent = GL[(Math.random() * GL.length) | 0]; }, 45);
     const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
     hero.addEventListener("pointermove", setMouse);
     hero.addEventListener("pointerdown", e => { setMouse(e); surge = 1; });
