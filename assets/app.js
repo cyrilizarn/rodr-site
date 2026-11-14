@@ -376,13 +376,14 @@
     }
     let W = 0, H = 0, CX = 0, CY = 0, R0 = 100, P = [], visible = true, tt = 0, surge = 0, nextSurge = 4;
     const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
-    const N = () => (innerWidth < 700 ? 4200 : 10000);
+    const N = () => (innerWidth < 700 ? 7000 : 17000);
     const spawn = (p, fresh) => {
       const a = Math.random() * Math.PI * 2, r = R0 * (1 + Math.random() * 0.04);
       p.x = CX + Math.cos(a) * r; p.y = CY + Math.sin(a) * r;
-      const out = 2.6 + Math.random() * 4.2;           // fast burst out of the rim, then slows down
+      p.rim = Math.random() < 0.42;                     // slow grains keep the rim sharp
+      const out = p.rim ? 0.1 + Math.random() * 0.35 : 5 + Math.random() * 7;   // others burst out fast
       p.vx = Math.cos(a) * out; p.vy = Math.sin(a) * out;
-      p.max = R0 * (1.25 + Math.pow(Math.random(), 2.2) * 3.2); // most die close to the rim -> dense halo
+      p.max = p.rim ? R0 * (1.03 + Math.random() * 0.2) : R0 * (1.3 + Math.pow(Math.random(), 1.8) * 3.4);
       p.s = Math.random() < 0.9 ? 1 : 1.7; p.red = Math.random() < 0.03; p.spin = (Math.random() < 0.5 ? 1 : 1) * (0.6 + Math.random() * 0.8);
       if (fresh) { const k = Math.random(); const rr = R0 + (p.max - R0) * k; p.x = CX + Math.cos(a) * rr; p.y = CY + Math.sin(a) * rr; }
       return p;
