@@ -75,11 +75,6 @@
         <p class="hero-type cond" aria-hidden="true"><span class="tl-line">ROD-R</span><br><span class="tl-line">WANDERING</span><br><span class="tl-line">SOUNDS</span></p>
 
       </section>
-      <section class="reel-sec" aria-label="Live">
-        <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div></div></div>
-      </section>
-      </div>
-
       <section class="sec" id="about">${head("about")}
         <div class="bio">
           <div class="rv">${paras(L(bio, "bio")).slice(0, 1).map(p => `<p class="lead">${esc(p)}</p>`).join("")}
@@ -88,6 +83,11 @@
             ${(bio.press || []).length ? `<p class="mono grey" style="margin-top:36px">${t("press")}</p><div class="tags">${bio.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}</div>
         </div>
       </section>
+      </div>
+      <section class="reel-sec" aria-label="Live">
+        <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div></div></div>
+      </section>
+
 
       <section class="sec" id="discography">${head("discography", `${releases.length} ${t("releases")}`)}
         <div class="rels">${releases.map((r, i) => `<div class="rel${i === 0 ? " open" : ""}">
