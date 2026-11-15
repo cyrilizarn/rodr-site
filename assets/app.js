@@ -409,6 +409,12 @@
       P = Array.from({ length: N() }, () => spawn({}, true));
     };
     size(); addEventListener("resize", () => { clearTimeout(size.t); size.t = setTimeout(size, 200); });
+    // parallax: the black hole and the title drift slower than the page
+    if (!reduce && !PORTAL) {
+      const typeP = hero.querySelector(".hero-type");
+      const para = () => { const y = scrollY; if (y > innerHeight * 1.3) return; cv.style.transform = `translateY(${y * 0.55}px)`; if (typeP) typeP.style.transform = `translateY(calc(-50% + ${y * 0.3}px))`; };
+      addEventListener("scroll", para, { passive: true }); para();
+    }
     // red glyphs flickering very fast at the centre of the hole
     const GL = "ROD-R0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@*+=/<>?!", gEl = title.querySelector(".glyph");
     if (gEl && !reduce && false) setInterval(() => { gEl.textContent = GL[(Math.random() * GL.length) | 0]; }, 45);
