@@ -60,7 +60,7 @@
     document.body.innerHTML = `
     <header class="nav">
       <a class="logo corner tl" href="#top">ROD<i>-</i>R</a>
-      <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}">${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
+      <ul class="corner tr"><span class="nav-ind" aria-hidden="true"></span><li><a href="#home" data-s="home">${LANG === "fr" ? "Accueil" : "Home"}</a></li>${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}">${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
       <button class="burger corner tr" aria-expanded="false">${t("menu")}</button>
       <div class="corner bl socials">${(site.socials || []).map(s => `<a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)}</a>`).join("")}</div>
       <div class="corner br"><span class="progress" aria-hidden="true"><i></i></span><button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button></div>
@@ -68,7 +68,7 @@
 
     <main id="top">
       <div class="intro">
-      <section class="hero">
+      <section class="hero" id="home">
         <canvas aria-hidden="true"></canvas>
         <p class="hero-sub">Electronica · IDM · Live A/V</p>
         <h1 class="hero-title" aria-label="ROD-R"><span class="hole-cross" aria-hidden="true"></span></h1>
@@ -163,8 +163,12 @@
     // active section + reveal
     const links = [...ul.querySelectorAll("a[data-s]")];
     if ("IntersectionObserver" in window) {
-      const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.toggle("on", a.dataset.s === e.target.id)); const w = nav.querySelector(".where b"); if (w) w.textContent = num(e.target.id); } }), { rootMargin: "-45% 0px -50% 0px" });
-      document.querySelectorAll("section.sec").forEach(s => so.observe(s));
+      const ind = nav.querySelector(".nav-ind");
+      const place = a => { if (!a || !ind) return; ind.style.transform = `translateY(${a.offsetTop}px)`; ind.style.height = a.offsetHeight + "px"; ind.style.opacity = 1; };
+      links.forEach(a => a.addEventListener("click", () => place(a)));
+      const so = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(a => a.classList.toggle("on", a.dataset.s === e.target.id)); place(links.find(a => a.dataset.s === e.target.id)); } }), { rootMargin: "-45% 0px -50% 0px" });
+      document.querySelectorAll("section.sec, #home").forEach(s => so.observe(s));
+      setTimeout(() => place(links[0]), 50);
       const ro = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); ro.unobserve(e.target); } }), { threshold: .15 });
       document.querySelectorAll(".rv, .sec-head").forEach(el => ro.observe(el));
     } else document.querySelectorAll(".rv, .sec-head").forEach(el => el.classList.add("in"));

@@ -312,3 +312,11 @@ footer a:hover { color: var(--red); }
 .progress i { position: absolute; inset: 0; background: var(--red); transform-origin: 0 50%; transform: scaleX(0); }
 @media (max-width: 1000px) { .progress { width: 70px; } }
 .hero-type { left: 16px; transform: translateY(-50%); text-align: left; color: var(--red); }
+.nav ul { position: relative; padding-right: 12px; }
+.nav-ind { position: absolute; right: 0; top: 0; width: 1px; height: 18px; background: var(--red); opacity: 0; transition: transform .45s cubic-bezier(.7,0,.2,1), height .3s; }
+.nav ul a { display: block; }
+@media (max-width: 1000px) { .nav-ind { display: none; } .nav ul { padding-right: var(--pad); } }
+/* one vertical line on the left: logo, title, socials */
+.tl, .bl { left: 16px; }
+.hero-type { left: 16px; margin-left: -0.065em; }
+.nav .logo { margin-left: -0.04em; }
