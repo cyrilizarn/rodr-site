@@ -72,7 +72,7 @@
         <canvas aria-hidden="true"></canvas>
         <p class="hero-sub">Electronica · IDM · Live A/V</p>
         <h1 class="hero-title" aria-label="ROD-R"><span class="hole-cross" aria-hidden="true"></span></h1>
-        <p class="hero-type cond" aria-hidden="true">ROD-R<br>Wandering<br>Sounds</p>
+        <p class="hero-type cond" aria-hidden="true"><span class="tl-line">ROD-R</span><br><span class="tl-line">WANDERING</span><br><span class="tl-line">SOUNDS</span></p>
 
       </section>
       <section class="reel-sec" aria-label="Live">
@@ -415,6 +415,46 @@
     const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
     hero.addEventListener("pointermove", setMouse);
     hero.addEventListener("pointerdown", e => { setMouse(e); surge = 1; });
+
+    // big red title rebuilt from grain, same rollover as the halo
+    const typeEl = hero.querySelector(".hero-type");
+    if (typeEl && !reduce) {
+      const tc = document.createElement("canvas"); tc.className = "type-canvas"; hero.appendChild(tc);
+      const tx = tc.getContext("2d"); let TP = [], TW = 0, TH = 0;
+      const buildType = () => {
+        const d = Math.min(devicePixelRatio || 1, 2); TW = hero.clientWidth; TH = hero.clientHeight;
+        tc.width = TW * d; tc.height = TH * d; tx.setTransform(d, 0, 0, d, 0, 0);
+        const hr = hero.getBoundingClientRect(), cs = getComputedStyle(typeEl), fs = parseFloat(cs.fontSize), lh = parseFloat(cs.lineHeight) || fs * 0.86;
+        const off = document.createElement("canvas"); off.width = TW; off.height = TH; const oc = off.getContext("2d");
+        oc.fillStyle = "#fff"; oc.textBaseline = "alphabetic"; oc.font = `700 ${fs}px "Px Grotesk", "Helvetica Neue", Arial, sans-serif`;
+        typeEl.querySelectorAll(".tl-line").forEach(line => { const r = line.getBoundingClientRect(); oc.fillText(line.textContent, r.left - hr.left, r.top - hr.top + r.height * 0.5 + fs * 0.35); });
+        const data = oc.getImageData(0, 0, TW, TH).data, step = 2; TP = [];
+        for (let y = 0; y < TH; y += step) for (let x = 0; x < TW; x += step) if (data[(y * TW + x) * 4 + 3] > 128 && Math.random() < 0.7)
+          TP.push({ hx: x + Math.random() * step, hy: y + Math.random() * step, x, y, vx: 0, vy: 0, k: 0.05 + Math.random() * 0.05, s: Math.random() < 0.8 ? 1.6 : 2.4 });
+        typeEl.style.opacity = 0;
+      };
+      (document.fonts ? document.fonts.load('700 100px "Px Grotesk"').catch(() => {}) : Promise.resolve()).then(() => setTimeout(buildType, 60));
+      addEventListener("resize", () => { clearTimeout(buildType.t); buildType.t = setTimeout(buildType, 250); });
+      const tm = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
+      hero.addEventListener("pointermove", e => { const r = tc.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (tm.on) { tm.vx = x - tm.x; tm.vy = y - tm.y; } tm.x = x; tm.y = y; tm.on = true; });
+      hero.addEventListener("pointerleave", () => { tm.on = false; tm.x = tm.y = -9999; });
+      const typeFrame = () => {
+        if (visible && TP.length) {
+          tx.clearRect(0, 0, TW, TH);
+          const R = Math.min(TW, TH) * 0.16, R2 = R * R, ms = Math.min(Math.hypot(tm.vx, tm.vy), 60);
+          for (const p of TP) {
+            p.vx += (p.hx - p.x) * p.k; p.vy += (p.hy - p.y) * p.k;
+            if (tm.on) { const dx = p.x - tm.x, dy = p.y - tm.y, d2 = dx * dx + dy * dy; if (d2 < R2) { const dd = Math.sqrt(d2) || 1, f = 1 - dd / R, f2 = f * f * (2.4 + ms * 0.12); p.vx += dx / dd * f2 - dy / dd * f2 * 0.8; p.vy += dy / dd * f2 + dx / dd * f2 * 0.8; } }
+            p.vx *= 0.85; p.vy *= 0.85; p.x += p.vx; p.y += p.vy;
+            tx.fillStyle = Math.hypot(p.vx, p.vy) > 4 ? "rgba(239,238,233,.95)" : "#e1251b";   // fast grains flash white
+            tx.fillRect(p.x, p.y, p.s, p.s);
+          }
+          tm.vx *= 0.8; tm.vy *= 0.8;
+        }
+        requestAnimationFrame(typeFrame);
+      };
+      typeFrame();
+    }
     hero.addEventListener("pointerleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
     new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
     const frame = () => {

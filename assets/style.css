@@ -320,3 +320,5 @@ footer a:hover { color: var(--red); }
 .tl, .bl { left: 16px; }
 .hero-type { left: 16px; margin-left: -0.065em; }
 .nav .logo { margin-left: -0.04em; }
+.type-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.hero-type .tl-line { display: inline-block; }
