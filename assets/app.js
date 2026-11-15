@@ -60,10 +60,10 @@
     document.body.innerHTML = `
     <header class="nav">
       <a class="logo corner tl" href="#top">ROD<i>-</i>R</a>
-      <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}"><b>${String(i + 1).padStart(2, "0")}</b>${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
+      <ul class="corner tr">${SECTIONS.map(([id, k], i) => `<li><a href="#${id}" data-s="${id}">${t(k)}</a></li>`).join("")}<li><a href="${esc(store)}"${ext(store)}>${t("store")} ↗</a></li></ul>
       <button class="burger corner tr" aria-expanded="false">${t("menu")}</button>
       <div class="corner bl socials">${(site.socials || []).map(s => `<a href="${esc(s.url)}"${ext(s.url)}>${esc(s.name)}</a>`).join("")}</div>
-      <div class="corner br"><span class="where"><b>01</b> / ${String(SECTIONS.length).padStart(2, "0")}</span><button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button></div>
+      <div class="corner br"><span class="progress" aria-hidden="true"><i></i></span><button class="lang">${LANG === "fr" ? "<b>FR</b>&nbsp;/&nbsp;EN" : "FR&nbsp;/&nbsp;<b>EN</b>"}</button></div>
     </header>
 
     <main id="top">
@@ -155,6 +155,9 @@
     const nav = document.querySelector(".nav"), ul = nav.querySelector("ul"), burger = nav.querySelector(".burger");
     burger.onclick = () => { const o = ul.classList.toggle("open"); burger.textContent = o ? t("close") : t("menu"); burger.setAttribute("aria-expanded", o); };
     ul.querySelectorAll("a").forEach(a => a.addEventListener("click", () => { ul.classList.remove("open"); burger.textContent = t("menu"); }));
+    const bar = nav.querySelector(".progress i");
+    const prog2 = () => { const h = document.documentElement.scrollHeight - innerHeight; bar.style.transform = `scaleX(${h > 0 ? scrollY / h : 0})`; };
+    addEventListener("scroll", prog2, { passive: true }); addEventListener("resize", prog2); prog2();
     nav.querySelector(".lang").onclick = () => { set("lang", LANG === "fr" ? "en" : "fr"); const u = new URL(location); u.searchParams.delete("lang"); location.href = u; };
 
     // active section + reveal
