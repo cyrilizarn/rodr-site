@@ -418,7 +418,7 @@
     const GL = "ROD-R0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@*+=/<>?!", gEl = title.querySelector(".glyph");
     if (gEl && !reduce && false) setInterval(() => { gEl.textContent = GL[(Math.random() * GL.length) | 0]; }, 45);
     const setMouse = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; if (mouse.on) { mouse.vx = x - mouse.x; mouse.vy = y - mouse.y; } mouse.x = x; mouse.y = y; mouse.on = true; };
-    hero.addEventListener("pointermove", setMouse);
+    addEventListener("pointermove", e => { const r = cv.getBoundingClientRect(); if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) setMouse(e); else { mouse.on = false; mouse.x = mouse.y = -9999; } }, { passive: true });
     hero.addEventListener("pointerdown", e => { setMouse(e); surge = 1; });
 
     // big red title rebuilt from grain, same rollover as the halo
@@ -460,7 +460,7 @@
       };
       typeFrame();
     }
-    hero.addEventListener("pointerleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
+    document.addEventListener("mouseleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
     new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
     const frame = () => {
       if (visible) {
@@ -475,7 +475,7 @@
           hero.querySelector(".portal-hint").style.opacity = Math.max(0, 1 - e * 4);
         }
         cx.save(); cx.globalCompositeOperation = "destination-out"; cx.fillStyle = "rgba(0,0,0,0.42)"; cx.fillRect(0, 0, W, H); cx.restore();   // short trails, fading to transparent
-        const MR = Math.min(W, H) * 0.22, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 50);
+        const MR = Math.min(W, H) * 0.3, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 70);
         const breath = 1 + Math.sin(tt * 1.3) * 0.25;
         for (const p of P) {
           const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
@@ -484,7 +484,7 @@
           p.vx += ux * push - uy * swirl; p.vy += uy * push + ux * swirl;
           if (mouse.on) {
             const mx = p.x - mouse.x, my = p.y - mouse.y, m2 = mx * mx + my * my;
-            if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (1.6 + ms * 0.09); p.vx += mx / m * f2 + my / m * f2 * 0.8; p.vy += my / m * f2 - mx / m * f2 * 0.8; }
+            if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (3.2 + ms * 0.17); p.vx += mx / m * f2 + my / m * f2 * 1.1; p.vy += my / m * f2 - mx / m * f2 * 1.1; }
           }
           p.vx *= p.drag || 0.94; p.vy *= p.drag || 0.94; p.x += p.vx; p.y += p.vy;
           const nd = Math.hypot(p.x - CX, p.y - CY);
