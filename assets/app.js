@@ -418,7 +418,7 @@
 
     // big red title rebuilt from grain, same rollover as the halo
     const typeEl = hero.querySelector(".hero-type");
-    if (typeEl && !reduce) {
+    if (false) {   // grain rollover on the title: disabled
       const tc = document.createElement("canvas"); tc.className = "type-canvas"; hero.appendChild(tc);
       const tx = tc.getContext("2d"); let TP = [], TW = 0, TH = 0;
       const buildType = () => {
