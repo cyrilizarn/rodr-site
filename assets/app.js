@@ -462,7 +462,7 @@
     }
     document.addEventListener("mouseleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
     const checkVis = () => { const r = cv.getBoundingClientRect(); visible = r.bottom > 0 && r.top < innerHeight; }; addEventListener("scroll", checkVis, { passive: true }); checkVis();
-    const BK = Array.from({ length: 16 }, () => []);
+    const BK = Array.from({ length: 16 }, () => []), DT = 0.5;   // simulation time step: 0.5 = half speed, same trajectories
     const frame = () => {
       if (visible) {
         tt += 1 / 60; if (tt > nextSurge) { surge = 0.7; nextSurge = tt + 4 + Math.random() * 5; }  // spontaneous energy pulses
@@ -483,14 +483,14 @@
           const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
           // flow: outward energy + swirl that weakens with distance
           const push = (0.035 + surge * 0.5) * breath * (R0 / d), swirl = 0.05 * p.spin * (R0 / d);
-          p.vx += ux * push - uy * swirl; p.vy += uy * push + ux * swirl;
+          p.vx += (ux * push - uy * swirl) * DT; p.vy += (uy * push + ux * swirl) * DT;
           if (mouse.on) {
             const mx = p.x - mouse.x, my = p.y - mouse.y, m2 = mx * mx + my * my;
-            if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (3.2 + ms * 0.17); p.vx += mx / m * f2 + my / m * f2 * 1.1; p.vy += my / m * f2 - mx / m * f2 * 1.1; }
+            if (m2 < MR2) { const m = Math.sqrt(m2) || 1, f = (1 - m / MR); const f2 = f * f * (3.2 + ms * 0.17) * DT; p.vx += mx / m * f2 + my / m * f2 * 1.1; p.vy += my / m * f2 - mx / m * f2 * 1.1; }
           }
-          p.vx *= p.drag || 0.94; p.vy *= p.drag || 0.94; p.x += p.vx; p.y += p.vy;
+          const dr = Math.pow(p.drag || 0.94, DT); p.vx *= dr; p.vy *= dr; p.x += p.vx * DT; p.y += p.vy * DT;
           const nd = Math.hypot(p.x - CX, p.y - CY);
-          p.age++; p.vx += (Math.random() - 0.5) * 0.5; p.vy += (Math.random() - 0.5) * 0.5;   // jitter
+          p.age += DT; p.vx += (Math.random() - 0.5) * 0.5 * DT; p.vy += (Math.random() - 0.5) * 0.5 * DT;   // jitter
           if (p.age > p.ttl || nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
           const life = 1 - p.age / p.ttl;
           const fast = p.red || (p.vx * p.vx + p.vy * p.vy) > 60;
