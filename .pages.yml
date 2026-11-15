@@ -104,8 +104,12 @@ content:
     path: content/bio.json
     fields:
       - { name: portrait, label: Portrait, type: image }
-      - { name: bio_fr, label: Bio (FR), type: text }
-      - { name: bio_en, label: Bio (EN), type: text }
+      - { name: lead_fr, label: Accroche About (FR), type: text }
+      - { name: lead_en, label: Accroche About (EN), type: text }
+      - { name: short_fr, label: Bio courte (FR), type: text }
+      - { name: short_en, label: Bio courte (EN), type: text }
+      - { name: bio_fr, label: Bio longue (FR), type: text }
+      - { name: bio_en, label: Bio longue (EN), type: text }
       - { name: press, label: Presse (noms), type: string, list: true }
       - name: downloads
         label: Téléchargements EPK

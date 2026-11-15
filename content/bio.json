@@ -1,11 +1,32 @@
 {
   "portrait": "/images/hero-portrait.jpg",
+  "lead_fr": "ROD-R est un producteur et compositeur français, à la croisée de la musique électronique et de la création visuelle.",
+  "lead_en": "ROD-R is a French producer and composer working where electronic music meets visual creation.",
+  "short_fr": "Une electronica granuleuse et immersive, nourrie par Max Cooper, Clark ou Rival Consoles. Après Prémices (2023) et Alterity (2025, Reliefs Records), il présente un live audiovisuel de 45 minutes, joué sur machines analogiques et projeté sur tulle, passé à guichets fermés par La Boule Noire et le Pop-Up! à Paris. Prochain EP : CRAFT, né de captations dans une verrerie industrielle.",
+  "short_en": "Grainy, immersive electronica shaped by Max Cooper, Clark and Rival Consoles. After Prémices (2023) and Alterity (2025, Reliefs Records), he tours a 45-minute audiovisual live show played on analogue machines and projected onto tulle, with sold-out nights at La Boule Noire and Pop-Up! in Paris. Next EP: CRAFT, born from field recordings in an industrial glassworks.",
   "bio_fr": "ROD-R est un producteur et compositeur français travaillant à la croisée de la musique électronique et de la création visuelle. Issu des arts visuels, il pense le son et l'image comme un seul geste : chaque morceau est un récit, fait de textures, de silences et de ruptures.\n\nInfluencé par Max Cooper, Clark, Rival Consoles ou Ben Lukas Boysen, il développe une electronica construite sur des rythmiques syncopées, des textures granuleuses et des harmonies de synthétiseurs analogiques.\n\nSon premier EP, Prémices (2023), explore un territoire entre ambient, IDM et electronica ; il est réinterprété en 2024 par Odalie (Mesh), CCTemple et Paul CH. Avec Alterity (2025), paru sur le label parisien Reliefs Records, il raconte en six chapitres une rencontre et une transformation. L'EP est prolongé par Otherness, court-métrage de science-fiction réalisé par Jon Jonderko, et salué notamment par DJ Mag et La Dépêche.\n\nLauréat du dispositif Music in Tarn 2024, ROD-R a joué au Rex de Toulouse en première partie de Mokado, aux Siestes Électroniques, au Bolegason, et à Paris pour deux soirées complètes : la release party d'Alterity au Pop-Up! et la soirée InFiné × Reliefs à La Boule Noire, aux côtés d'Abran et Frieder Nagel.\n\nSon live audiovisuel de 45 minutes, joué sur machines analogiques et projeté sur tulle, associe musique, typographie et dispositifs visuels génératifs. En novembre 2026, Louise ROAM signe un rework de Friction Field. Il prépare CRAFT, un EP né de captations sonores dans une verrerie industrielle, en hommage à son père qui y a travaillé.",
   "bio_en": "ROD-R is a French producer and composer working where electronic music meets visual creation. Coming from the visual arts, he treats sound and image as a single gesture: each track is a story made of textures, silences and ruptures.\n\nInfluenced by Max Cooper, Clark, Rival Consoles and Ben Lukas Boysen, he builds an electronica of syncopated rhythms, grainy textures and analogue synth harmonies.\n\nHis debut EP, Prémices (2023), explores ground between ambient, IDM and electronica; it was reimagined in 2024 by Odalie (Mesh), CCTemple and Paul CH. With Alterity (2025), released on Paris label Reliefs Records, he tells the story of an encounter and a transformation in six chapters. The EP is extended by Otherness, a science-fiction short film directed by Jon Jonderko, and was praised by DJ Mag and La Dépêche among others.\n\nA laureate of the Music in Tarn 2024 programme, ROD-R has played Le Rex in Toulouse supporting Mokado, Les Siestes Électroniques, Le Bolegason, and two sold-out nights in Paris: the Alterity release party at Pop-Up! and the InFiné × Reliefs night at La Boule Noire alongside Abran and Frieder Nagel.\n\nHis 45-minute audiovisual live show, played on analogue machines and projected onto tulle, combines music, typography and generative visuals. In November 2026, Louise ROAM delivered a rework of Friction Field. He is now working on CRAFT, an EP born from field recordings in an industrial glassworks, as a tribute to his father who worked there.",
-  "press": ["DJ Mag FR", "La Dépêche", "Les Oreilles Curieuses", "ADSR Collective", "Plastic Mag", "La Distillerie Musicale", "Tsugi Radio"],
+  "press": [
+    "DJ Mag FR",
+    "La Dépêche",
+    "Les Oreilles Curieuses",
+    "ADSR Collective",
+    "Plastic Mag",
+    "La Distillerie Musicale",
+    "Tsugi Radio"
+  ],
   "downloads": [
-    { "name": "Presskit 2026 (PDF)", "file": "/files/ROD-R_Presskit_2026.pdf" },
-    { "name": "Biographie 2027 (PDF)", "file": "/files/ROD-R_Biographie_2027.pdf" },
-    { "name": "Fiche technique live (PDF)", "file": "/files/ROD-R_Fiche_technique_2026.pdf" }
+    {
+      "name": "Presskit 2026 (PDF)",
+      "file": "/files/ROD-R_Presskit_2026.pdf"
+    },
+    {
+      "name": "Biographie 2027 (PDF)",
+      "file": "/files/ROD-R_Biographie_2027.pdf"
+    },
+    {
+      "name": "Fiche technique live (PDF)",
+      "file": "/files/ROD-R_Fiche_technique_2026.pdf"
+    }
   ]
 }

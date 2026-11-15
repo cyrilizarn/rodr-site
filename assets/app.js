@@ -76,16 +76,15 @@
 
       </section>
       <section class="sec" id="about">${head("about")}
-        <div class="bio">
-          <div class="rv">${paras(L(bio, "bio")).slice(0, 1).map(p => `<p class="lead">${esc(p)}</p>`).join("")}
-            ${bio.portrait ? `<div class="portrait"><img src="${esc(bio.portrait)}" alt="ROD-R" loading="lazy"></div>` : ""}</div>
-          <div class="rv"><div class="prose">${paras(L(bio, "bio")).slice(1).map(p => `<p>${esc(p)}</p>`).join("")}</div>
-            ${(bio.press || []).length ? `<p class="mono grey" style="margin-top:36px">${t("press")}</p><div class="tags">${bio.press.map(p => `<span>${esc(p)}</span>`).join("")}</div>` : ""}</div>
-        </div>
+        <p class="about-lead rv">${esc(L(bio, "lead"))}</p>
       </section>
       </div>
       <section class="reel-sec" aria-label="Live">
         <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div></div></div>
+      </section>
+      <section class="about-more">
+        <p class="about-short rv">${esc(L(bio, "short"))}</p>
+        ${(bio.press || []).length ? `<div class="press rv"><p class="mono grey">${t("press")}</p><ul>${bio.press.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
       </section>
 
 
@@ -412,7 +411,7 @@
     // parallax: the black hole and the title drift slower than the page
     if (!reduce && !PORTAL) {
       const typeP = hero.querySelector(".hero-type");
-      const para = () => { const y = scrollY; if (y > innerHeight * 1.3) return; cv.style.transform = `translateY(${y * 0.55}px)`; if (typeP) typeP.style.transform = `translateY(calc(-50% + ${y * 0.3}px))`; };
+      const para = () => { const y = scrollY; cv.style.transform = `translateY(${y * 0.55}px)`; if (typeP) typeP.style.transform = `translateY(calc(-50% + ${y * 0.3}px))`; };
       addEventListener("scroll", para, { passive: true }); para();
     }
     // red glyphs flickering very fast at the centre of the hole
