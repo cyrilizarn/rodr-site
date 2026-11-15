@@ -83,7 +83,7 @@
         <div class="reel-pin"><div class="reel"><div class="reel-in" data-yt="${esc(ytId((videos[0] || {}).youtube) || "SXqtCKVxDpY")}"></div></div></div>
       </section>
       <section class="about-more">
-        <p class="about-short rv">${esc(L(bio, "short"))}</p>
+        <div class="about-short rv">${paras(L(bio, "bio")).slice(1).map(x => `<p>${esc(x)}</p>`).join("")}</div>
         ${(bio.press || []).length ? `<div class="press rv"><p class="mono grey">${t("press")}</p><ul>${bio.press.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
       </section>
 

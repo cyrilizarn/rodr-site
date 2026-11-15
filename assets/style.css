@@ -340,3 +340,7 @@ body #about { position: relative; z-index: 5; }
 .press li { font-family: var(--cond); font-weight: 700; text-transform: uppercase; font-size: clamp(24px, 2.3vw, 38px); line-height: 1.05; letter-spacing: -0.01em; }
 @media (max-width: 900px) { .about-more { grid-template-columns: 1fr; padding-right: var(--pad); } }
 .reel-sec { padding-top: clamp(56px, 7vw, 110px); }
+.about-more { display: block; }
+.about-short { max-width: 64ch; }
+.about-short p { margin-bottom: 1.1em; }
+.press { margin-top: clamp(48px, 6vw, 90px); }
