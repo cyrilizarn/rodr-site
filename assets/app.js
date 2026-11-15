@@ -174,7 +174,7 @@
 
     // grain "boil" on the titles: reseed the noise a few times per second
     const turb = document.querySelector("#grain-type feTurbulence");
-    if (turb && !matchMedia("(prefers-reduced-motion: reduce)").matches) { let sd = 1; setInterval(() => { sd = (sd % 7) + 1; turb.setAttribute("seed", sd); }, 140); }
+    if (false && turb) { let sd = 1; setInterval(() => { sd = (sd % 7) + 1; turb.setAttribute("seed", sd); }, 140); }
 
     // cursor trail made of grain, over the whole site
     if (false) {   // cursor trail disabled
@@ -271,7 +271,7 @@
       let W = 0, H = 0, P = [], visible = true;
       const m = { x: -9999, y: -9999, nx: 0, ny: 0, vx: 0, vy: 0, on: false }, par = { x: 0, y: 0 };
       const build = () => {
-        const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+        const d = Math.min(devicePixelRatio || 1, 1.5); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
         const fs = Math.min(W * 0.2, H * 0.36), off = document.createElement("canvas"); off.width = W; off.height = H;
         const oc = off.getContext("2d"); oc.fillStyle = "#fff"; oc.textAlign = "center"; oc.textBaseline = "middle";
         oc.font = `700 ${fs}px "Px Grotesk", "Helvetica Neue", Arial, sans-serif`; oc.fillText("ROD-R", W / 2, H / 2);
@@ -314,7 +314,7 @@
       const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
       const img = new Image();
       const build = () => {
-        const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+        const d = Math.min(devicePixelRatio || 1, 1.5); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
         if (!img.naturalWidth) return;
         const s = Math.max(W / img.naturalWidth, H / img.naturalHeight), iw = img.naturalWidth * s, ih = img.naturalHeight * s, ox = (W - iw) / 2, oy = (H - ih) / 2;
         const step = W < 700 ? 4 : 3, gw = Math.ceil(W / step), gh = Math.ceil(H / step);
@@ -383,7 +383,7 @@
     }
     let W = 0, H = 0, CX = 0, CY = 0, R0 = 100, P = [], visible = true, tt = 0, surge = 0, nextSurge = 4;
     const mouse = { x: -9999, y: -9999, vx: 0, vy: 0, on: false };
-    const N = () => (innerWidth < 700 ? 7000 : 17000);
+    const N = () => (innerWidth < 700 ? 4500 : 10000);
     const spawn = (p, fresh) => {
       const a = Math.random() * Math.PI * 2, r = R0 * (1 + Math.random() * 0.04);
       p.x = CX + Math.cos(a) * r; p.y = CY + Math.sin(a) * r;
@@ -402,7 +402,7 @@
       return p;
     };
     const size = () => {
-      const d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+      const d = Math.min(devicePixelRatio || 1, 1.5); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
       CX = W / 2; CY = H / 2; R0 = R0base = Math.min(W, H) * (W < 700 ? 0.4 : 0.34);
       title.style.fontSize = Math.round(R0base * 0.95) + "px";
       P = Array.from({ length: N() }, () => spawn({}, true));
@@ -461,7 +461,8 @@
       typeFrame();
     }
     document.addEventListener("mouseleave", () => { mouse.on = false; mouse.x = mouse.y = -9999; });
-    new IntersectionObserver(es => visible = es[0].isIntersecting).observe(hero);
+    const checkVis = () => { const r = cv.getBoundingClientRect(); visible = r.bottom > 0 && r.top < innerHeight; }; addEventListener("scroll", checkVis, { passive: true }); checkVis();
+    const BK = Array.from({ length: 16 }, () => []);
     const frame = () => {
       if (visible) {
         tt += 1 / 60; if (tt > nextSurge) { surge = 0.7; nextSurge = tt + 4 + Math.random() * 5; }  // spontaneous energy pulses
@@ -477,6 +478,7 @@
         cx.save(); cx.globalCompositeOperation = "destination-out"; cx.fillStyle = "rgba(0,0,0,0.42)"; cx.fillRect(0, 0, W, H); cx.restore();   // short trails, fading to transparent
         const MR = Math.min(W, H) * 0.3, MR2 = MR * MR, ms = Math.min(Math.hypot(mouse.vx, mouse.vy), 70);
         const breath = 1 + Math.sin(tt * 1.3) * 0.25;
+        for (let b = 0; b < 16; b++) BK[b].length = 0;
         for (const p of P) {
           const dx = p.x - CX, dy = p.y - CY, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
           // flow: outward energy + swirl that weakens with distance
@@ -490,11 +492,14 @@
           const nd = Math.hypot(p.x - CX, p.y - CY);
           p.age++; p.vx += (Math.random() - 0.5) * 0.5; p.vy += (Math.random() - 0.5) * 0.5;   // jitter
           if (p.age > p.ttl || nd > p.max || nd < R0 * 0.92 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) { spawn(p); continue; }
-          const life = Math.pow(1 - p.age / p.ttl, 0.8);
-          const v = Math.min(Math.hypot(p.vx, p.vy) / 11, 1);
-          cx.fillStyle = p.red || v > 0.7 ? `rgba(225,37,27,${(0.5 + life * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + life * 0.85) * fade})`;
-          cx.fillRect(p.x, p.y, p.s, p.s);
+          const life = 1 - p.age / p.ttl;
+          const fast = p.red || (p.vx * p.vx + p.vy * p.vy) > 60;
+          BK[(fast ? 8 : 0) + Math.min(7, (life * 8) | 0)].push(p);
         }
+        // draw in 16 batches (2 colours x 8 alpha levels) instead of one style change per grain
+        for (let b = 0; b < 16; b++) { const arr = BK[b]; if (!arr.length) continue; const lv = ((b & 7) + 0.5) / 8;
+          cx.fillStyle = b >= 8 ? `rgba(225,37,27,${(0.5 + lv * 0.5) * fade})` : `rgba(239,238,233,${(0.15 + lv * 0.85) * fade})`;
+          for (let i = 0; i < arr.length; i++) { const p = arr[i]; cx.fillRect(p.x, p.y, p.s, p.s); } }
         if (PORTAL) { cx.save(); cx.globalCompositeOperation = "destination-out"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill(); cx.restore(); }   // window onto the live
         else { cx.fillStyle = "#0a0a0a"; cx.beginPath(); cx.arc(CX, CY, R0 * 0.985, 0, Math.PI * 2); cx.fill(); }   // the black hole
         mouse.vx *= 0.85; mouse.vy *= 0.85;

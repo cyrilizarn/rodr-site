@@ -344,3 +344,5 @@ body #about { position: relative; z-index: 5; }
 .about-short { max-width: 64ch; }
 .about-short p { margin-bottom: 1.1em; }
 .press { margin-top: clamp(48px, 6vw, 90px); }
+#about .sec-head, #about .about-lead, .about-more > * { margin-left: 30%; }
+@media (max-width: 900px) { #about .sec-head, #about .about-lead, .about-more > * { margin-left: 0; } }
